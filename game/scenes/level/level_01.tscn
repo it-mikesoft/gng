@@ -1,14 +1,16 @@
 [gd_scene load_steps=8 format=3 uid="uid://blevel01"]
 
+[ext_resource type="Script"      path="res://scripts/level/level_01.gd"              id="0_level"]
 [ext_resource type="PackedScene" uid="uid://bplayer001" path="res://scenes/player/player.tscn" id="1_player"]
-[ext_resource type="PackedScene" uid="uid://bhud001" path="res://scenes/ui/hud.tscn" id="2_hud"]
-[ext_resource type="PackedScene" uid="uid://bboss001" path="res://scenes/boss/boss.tscn" id="3_boss"]
-[ext_resource type="Script" path="res://scripts/checkpoint.gd" id="4_checkpoint"]
-[ext_resource type="Script" path="res://scripts/director/encounter_spawner.gd" id="5_spawner"]
-[ext_resource type="Script" path="res://scripts/camera.gd" id="6_cam"]
-[ext_resource type="Script" path="res://scripts/director/ai_director.gd" id="7_dir"]
+[ext_resource type="PackedScene" uid="uid://bhud001"    path="res://scenes/ui/hud.tscn"        id="2_hud"]
+[ext_resource type="PackedScene" uid="uid://bboss001"   path="res://scenes/boss/boss.tscn"     id="3_boss"]
+[ext_resource type="Script"      path="res://scripts/checkpoint.gd"                  id="4_checkpoint"]
+[ext_resource type="Script"      path="res://scripts/director/encounter_spawner.gd"  id="5_spawner"]
+[ext_resource type="Script"      path="res://scripts/camera.gd"                      id="6_cam"]
+[ext_resource type="Script"      path="res://scripts/director/ai_director.gd"        id="7_dir"]
 
 [node name="Level01" type="Node2D"]
+script = ExtResource("0_level")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
@@ -24,16 +26,19 @@ script = ExtResource("6_cam")
 [node name="GroundShape" type="CollisionShape2D" parent="Ground"]
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
-position = Vector2(40, 148)
+position = Vector2(40, 140)
 
 [node name="Checkpoint" type="Area2D" parent="."]
-position = Vector2(640, 148)
+position = Vector2(640, 150)
 script = ExtResource("4_checkpoint")
 
 [node name="CheckpointShape" type="CollisionShape2D" parent="Checkpoint"]
 
 [node name="Spawner" type="Node2D" parent="."]
 script = ExtResource("5_spawner")
+spawn_interval_min = 3.0
+spawn_interval_max = 8.0
+max_live_enemies = 6
 
 [node name="AiDirector" type="Node" parent="Spawner"]
 script = ExtResource("7_dir")
@@ -42,10 +47,13 @@ script = ExtResource("7_dir")
 position = Vector2(200, 140)
 
 [node name="SpawnPoint2" type="Marker2D" parent="Spawner"]
-position = Vector2(400, 100)
+position = Vector2(420, 90)
 
 [node name="SpawnPoint3" type="Marker2D" parent="Spawner"]
-position = Vector2(550, 140)
+position = Vector2(560, 140)
+
+[node name="SpawnPoint4" type="Marker2D" parent="Spawner"]
+position = Vector2(750, 90)
 
 [node name="Boss" parent="." instance=ExtResource("3_boss")]
 position = Vector2(1100, 140)

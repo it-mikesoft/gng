@@ -18,6 +18,8 @@ func _ready() -> void:
 	move_speed  = 25.0
 	score_value = 500
 	hp          = max_hp
+	if spear_scene == null:
+		spear_scene = load("res://scenes/weapons/lance.tscn")
 
 func _update_logic(delta: float) -> void:
 	_apply_gravity(delta)

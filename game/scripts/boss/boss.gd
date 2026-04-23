@@ -45,6 +45,21 @@ var _entered      : bool      = false
 func _ready() -> void:
 	hp      = MAX_HP
 	_player = get_tree().get_first_node_in_group("player") as CharacterBody2D
+	if projectile_scene == null:
+		projectile_scene = load("res://scenes/boss/boss_projectile.tscn")
+	_auto_shapes()
+
+func _auto_shapes() -> void:
+	var cs : CollisionShape2D = get_node_or_null("CollisionShape2D")
+	if cs and cs.shape == null:
+		var s := RectangleShape2D.new()
+		s.size = Vector2(28, 44)
+		cs.shape = s
+	var hb : CollisionShape2D = get_node_or_null("Hitbox/CollisionShape2D")
+	if hb and hb.shape == null:
+		var s := RectangleShape2D.new()
+		s.size = Vector2(28, 44)
+		hb.shape = s
 
 func _physics_process(delta: float) -> void:
 	if state == BossState.DEAD:

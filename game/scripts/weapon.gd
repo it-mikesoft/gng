@@ -8,6 +8,11 @@ var _time        := 0.0
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	var cs : CollisionShape2D = get_node_or_null("CollisionShape2D")
+	if cs and cs.shape == null:
+		var s := RectangleShape2D.new()
+		s.size = Vector2(8, 4)
+		cs.shape = s
 
 func set_direction(dir: int) -> void:
 	direction     = dir

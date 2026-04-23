@@ -14,4 +14,4 @@ position = Vector2(12, 0)
 
 [node name="Hurtbox" type="Area2D" parent="."]
 
-[node name="Hurtbox/CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]

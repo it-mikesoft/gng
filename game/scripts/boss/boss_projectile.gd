@@ -8,6 +8,11 @@ var _time  : float   = 0.0
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	var cs : CollisionShape2D = get_node_or_null("CollisionShape2D")
+	if cs and cs.shape == null:
+		var s := CircleShape2D.new()
+		s.radius = 4.0
+		cs.shape = s
 
 func set_velocity_from_angle(angle: float) -> void:
 	_vel = Vector2(cos(angle), sin(angle)) * SPEED
