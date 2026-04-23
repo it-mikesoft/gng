@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://benemy_crow"]
+
+[ext_resource type="Script" path="res://scripts/enemies/crow.gd" id="1_crow"]
+
+[node name="Crow" type="CharacterBody2D" groups=["enemies"]]
+script = ExtResource("1_crow")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+
+[node name="Hitbox" type="Area2D" parent="."]
+
+[node name="Hitbox/CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
