@@ -12,4 +12,4 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	activated = true
 	GameManager.set_checkpoint(global_position)
-	# Placeholder: play activation animation / SFX here
+	AudioManager.play_sfx("checkpoint")

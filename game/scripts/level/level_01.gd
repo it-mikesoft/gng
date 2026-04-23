@@ -11,6 +11,7 @@ func _ready() -> void:
 	_setup_boss()
 	GameManager.game_over.connect(_on_game_over)
 	GameManager.game_won.connect(_on_game_won)
+	AudioManager.play_music("level")
 
 # ── geometry ──────────────────────────────────────────────────────────────────
 
@@ -116,10 +117,14 @@ func _on_boss_defeated() -> void:
 	GameManager.on_boss_defeated()
 
 func _on_game_over() -> void:
+	AudioManager.stop_music()
+	AudioManager.play_sfx("game_over")
 	await get_tree().create_timer(2.0).timeout
 	set_process_unhandled_key_input(true)
 
 func _on_game_won() -> void:
+	AudioManager.stop_music()
+	AudioManager.play_sfx("win")
 	await get_tree().create_timer(3.0).timeout
 	set_process_unhandled_key_input(true)
 

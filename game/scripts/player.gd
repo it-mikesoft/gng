@@ -92,12 +92,16 @@ func _handle_horizontal() -> void:
 		sprite.flip_h = facing < 0
 
 func _handle_jump() -> void:
+	var was_airborne := airborne
 	if is_on_floor() and airborne:
 		airborne = false
+		if was_airborne:
+			AudioManager.play_sfx("land")
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 		jump_hvel  = velocity.x
 		airborne   = true
+		AudioManager.play_sfx("jump")
 
 func _handle_attack() -> void:
 	if not Input.is_action_just_pressed("attack") or weapon_scene == null:
@@ -106,6 +110,7 @@ func _handle_attack() -> void:
 	get_parent().add_child(w)
 	w.global_position = weapon_spawn.global_position
 	w.set_direction(facing)
+	AudioManager.play_sfx("attack")
 
 func _update_state() -> void:
 	if is_on_floor():
@@ -147,6 +152,7 @@ func take_damage(knock_dir: int = 1) -> void:
 	if GameManager.lives <= 0:
 		_die()
 		return
+	AudioManager.play_sfx("player_hit")
 	state      = State.HURT
 	invincible = true
 	iframes_t  = IFRAMES_DUR
@@ -157,6 +163,7 @@ func _die() -> void:
 	state          = State.DEAD
 	velocity       = Vector2.ZERO
 	sprite.visible = true
+	AudioManager.play_sfx("player_death")
 	GameManager.on_player_died()
 
 func respawn() -> void:
