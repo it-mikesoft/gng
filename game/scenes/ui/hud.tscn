@@ -9,21 +9,63 @@ script = ExtResource("1_hud")
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 120.0
-offset_bottom = 20.0
+offset_bottom = 18.0
 text = "LIVES x3"
+
+[node name="ScoreLabel" type="Label" parent="."]
+offset_left = 220.0
+offset_top = 4.0
+offset_right = 316.0
+offset_bottom = 18.0
+text = "000000"
+horizontal_alignment = 2
 
 [node name="GameOverPanel" type="Panel" parent="."]
 visible = false
 offset_left = 80.0
-offset_top = 60.0
+offset_top = 55.0
 offset_right = 240.0
-offset_bottom = 120.0
+offset_bottom = 125.0
 
-[node name="GameOverLabel" type="Label" parent="GameOverPanel"]
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 152.0
-offset_bottom = 52.0
+[node name="GOLabel" type="Label" parent="GameOverPanel"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 160.0
+offset_bottom = 40.0
 text = "GAME OVER"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GOSub" type="Label" parent="GameOverPanel"]
+offset_left = 0.0
+offset_top = 42.0
+offset_right = 160.0
+offset_bottom = 70.0
+text = "press any key"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WinPanel" type="Panel" parent="."]
+visible = false
+offset_left = 80.0
+offset_top = 55.0
+offset_right = 240.0
+offset_bottom = 125.0
+
+[node name="WinLabel" type="Label" parent="WinPanel"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 160.0
+offset_bottom = 40.0
+text = "YOU WIN!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WinSub" type="Label" parent="WinPanel"]
+offset_left = 0.0
+offset_top = 42.0
+offset_right = 160.0
+offset_bottom = 70.0
+text = "press any key"
 horizontal_alignment = 1
 vertical_alignment = 1

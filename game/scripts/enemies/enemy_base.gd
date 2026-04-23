@@ -68,5 +68,6 @@ func get_knockback_dir(from_pos: Vector2) -> int:
 
 func _die() -> void:
 	state = State.DEAD
+	GameManager.add_score(score_value)
 	died.emit(self)
 	queue_free()

@@ -13,6 +13,7 @@ var trigger_dist: float     = 80.0
 
 func _ready() -> void:
 	super()
+	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	max_hp      = 1
 	move_speed  = 120.0
 	score_value = 200

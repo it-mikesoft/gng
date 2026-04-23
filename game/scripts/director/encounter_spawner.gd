@@ -1,4 +1,5 @@
 extends Node2D
+class_name EncounterSpawner
 # Spawns enemies at marked spawn points driven by AiDirector intensity.
 
 @export var spawn_interval_min : float = 3.0

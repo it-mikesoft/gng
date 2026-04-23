@@ -19,6 +19,7 @@ var dive_dir      : Vector2      = Vector2.ZERO
 
 func _ready() -> void:
 	super()
+	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	max_hp      = 2
 	move_speed  = 50.0
 	score_value = 1000

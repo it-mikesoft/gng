@@ -7,7 +7,10 @@ func _ready() -> void:
 	_build_geometry()
 	_setup_player()
 	_setup_checkpoint()
+	_setup_spawner()
+	_setup_boss()
 	GameManager.game_over.connect(_on_game_over)
+	GameManager.game_won.connect(_on_game_won)
 
 # ── geometry ──────────────────────────────────────────────────────────────────
 
@@ -92,20 +95,37 @@ func _setup_player() -> void:
 	GameManager.set_checkpoint(player.global_position)
 
 func _setup_checkpoint() -> void:
-	var cp : Area2D = $Checkpoint
 	var cs : CollisionShape2D = $Checkpoint/CheckpointShape
 	if cs.shape == null:
 		var s := CircleShape2D.new()
 		s.radius = 14.0
 		cs.shape = s
 
-# ── game over ─────────────────────────────────────────────────────────────────
+func _setup_spawner() -> void:
+	var sp : Node2D = $Spawner
+	sp.set("zombie_scene",       load("res://scenes/enemies/zombie.tscn"))
+	sp.set("crow_scene",         load("res://scenes/enemies/crow.tscn"))
+	sp.set("demon_knight_scene", load("res://scenes/enemies/demon_knight.tscn"))
+	sp.set("red_arremer_scene",  load("res://scenes/enemies/red_arremer.tscn"))
+
+func _setup_boss() -> void:
+	var boss : CharacterBody2D = $Boss
+	boss.defeated.connect(_on_boss_defeated)
+
+# ── end conditions ────────────────────────────────────────────────────────────
+
+func _on_boss_defeated() -> void:
+	GameManager.on_boss_defeated()
 
 func _on_game_over() -> void:
-	# Any key restarts after 2 seconds
 	await get_tree().create_timer(2.0).timeout
+	set_process_unhandled_key_input(true)
+
+func _on_game_won() -> void:
+	await get_tree().create_timer(3.0).timeout
 	set_process_unhandled_key_input(true)
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
+		GameManager.reset()
 		get_tree().reload_current_scene()
