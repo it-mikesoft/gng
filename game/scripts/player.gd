@@ -30,6 +30,15 @@ func _ready() -> void:
 	hurtbox.body_entered.connect(_on_hurtbox_body_entered)
 	if sprite.sprite_frames == null:
 		sprite.hide()
+	_create_camera()
+
+func _create_camera() -> void:
+	var cam := Camera2D.new()
+	cam.limit_left   = 0
+	cam.limit_right  = 1280
+	cam.limit_top    = -400
+	cam.limit_bottom = 400
+	add_child(cam)
 
 func _physics_process(delta: float) -> void:
 	match state:
