@@ -63,14 +63,12 @@ func _add_invisible_wall(pos: Vector2, size: Vector2) -> void:
 	sb.position = pos
 	add_child(sb)
 
-func _make_draw_node(pos: Vector2, size: Vector2, col: Color) -> Node2D:
-	var n := Node2D.new()
+func _make_draw_node(pos: Vector2, size: Vector2, col: Color, is_static: bool = true) -> Node2D:
+	var n : Node2D = preload("res://scripts/debug/draw_placeholder.gd").new()
 	n.position = pos
-	# Capture by value for the lambda
-	var s := size
-	var c := col
-	n.draw.connect(func(): n.draw_rect(Rect2(-s * 0.5, s), c, true))
-	n.queue_redraw()
+	n.set("color",           col)
+	n.set("size",            size)
+	n.set("static_geometry", is_static)
 	return n
 
 # ── player ────────────────────────────────────────────────────────────────────
@@ -89,8 +87,8 @@ func _setup_player() -> void:
 		hb.shape = s
 	if player.weapon_scene == null:
 		player.weapon_scene = load("res://scenes/weapons/lance.tscn")
-	# Placeholder rect on player
-	var ph := _make_draw_node(Vector2.ZERO, Vector2(12, 22), Color(0.9, 0.8, 0.2))
+	# Placeholder rect on player (not static — moves with player)
+	var ph := _make_draw_node(Vector2.ZERO, Vector2(12, 22), Color(0.9, 0.8, 0.2), false)
 	player.add_child(ph)
 	GameManager.set_checkpoint(player.global_position)
 

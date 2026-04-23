@@ -28,6 +28,8 @@ func _ready() -> void:
 	add_to_group("player")
 	GameManager.register_player(self)
 	hurtbox.body_entered.connect(_on_hurtbox_body_entered)
+	if sprite.sprite_frames == null:
+		sprite.hide()
 
 func _physics_process(delta: float) -> void:
 	match state:

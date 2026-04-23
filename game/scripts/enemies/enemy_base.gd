@@ -23,6 +23,8 @@ func _ready() -> void:
 	hp         = max_hp
 	player_ref = get_tree().get_first_node_in_group("player") as CharacterBody2D
 	_auto_shapes()
+	if sprite.sprite_frames == null:
+		sprite.hide()
 
 func _auto_shapes() -> void:
 	var cs : CollisionShape2D = get_node_or_null("CollisionShape2D")
