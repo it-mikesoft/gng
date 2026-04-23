@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://bboss001"]
+
+[ext_resource type="Script" path="res://scripts/boss/boss.gd" id="1_boss"]
+[ext_resource type="Script" path="res://scripts/debug/draw_placeholder.gd" id="2_ph"]
+
+[node name="Boss" type="CharacterBody2D" groups=["enemies"]]
+script = ExtResource("1_boss")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+
+[node name="Placeholder" type="Node2D" parent="."]
+script = ExtResource("2_ph")
+color = Color(0.6, 0.1, 0.1, 1.0)
+size = Vector2(32, 48)
+
+[node name="Hitbox" type="Area2D" parent="."]
+
+[node name="Hitbox/CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]

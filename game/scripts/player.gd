@@ -25,6 +25,7 @@ var iframes_t   : float = 0.0
 var blink_t     : float = 0.0
 
 func _ready() -> void:
+	add_to_group("player")
 	GameManager.register_player(self)
 	hurtbox.body_entered.connect(_on_hurtbox_body_entered)
 

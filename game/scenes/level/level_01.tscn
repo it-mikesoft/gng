@@ -1,10 +1,23 @@
-[gd_scene load_steps=5 format=3 uid="uid://blevel01"]
+[gd_scene load_steps=8 format=3 uid="uid://blevel01"]
 
 [ext_resource type="PackedScene" uid="uid://bplayer001" path="res://scenes/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://bhud001" path="res://scenes/ui/hud.tscn" id="2_hud"]
-[ext_resource type="Script" path="res://scripts/checkpoint.gd" id="3_checkpoint"]
+[ext_resource type="PackedScene" uid="uid://bboss001" path="res://scenes/boss/boss.tscn" id="3_boss"]
+[ext_resource type="Script" path="res://scripts/checkpoint.gd" id="4_checkpoint"]
+[ext_resource type="Script" path="res://scripts/director/encounter_spawner.gd" id="5_spawner"]
+[ext_resource type="Script" path="res://scripts/camera.gd" id="6_cam"]
+[ext_resource type="Script" path="res://scripts/director/ai_director.gd" id="7_dir"]
 
 [node name="Level01" type="Node2D"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_left = 0
+limit_top = -200
+limit_right = 1280
+limit_bottom = 200
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+script = ExtResource("6_cam")
 
 [node name="Ground" type="StaticBody2D" parent="."]
 
@@ -14,9 +27,29 @@
 position = Vector2(40, 148)
 
 [node name="Checkpoint" type="Area2D" parent="."]
-position = Vector2(160, 148)
-script = ExtResource("3_checkpoint")
+position = Vector2(640, 148)
+script = ExtResource("4_checkpoint")
 
 [node name="CheckpointShape" type="CollisionShape2D" parent="Checkpoint"]
+
+[node name="Spawner" type="Node2D" parent="."]
+script = ExtResource("5_spawner")
+
+[node name="AiDirector" type="Node" parent="Spawner"]
+script = ExtResource("7_dir")
+
+[node name="SpawnPoint1" type="Marker2D" parent="Spawner"]
+position = Vector2(200, 140)
+
+[node name="SpawnPoint2" type="Marker2D" parent="Spawner"]
+position = Vector2(400, 100)
+
+[node name="SpawnPoint3" type="Marker2D" parent="Spawner"]
+position = Vector2(550, 140)
+
+[node name="Boss" parent="." instance=ExtResource("3_boss")]
+position = Vector2(1100, 140)
+arena_left_x = 900.0
+arena_right_x = 1240.0
 
 [node name="HUD" parent="." instance=ExtResource("2_hud")]

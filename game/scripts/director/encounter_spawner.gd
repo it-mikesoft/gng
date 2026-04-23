@@ -39,13 +39,14 @@ func _try_spawn() -> void:
 	var scene : PackedScene = _scene_for(type)
 	if scene == null:
 		return
-	var enemy : EnemyBase = scene.instantiate()
+	var enemy : CharacterBody2D = scene.instantiate() as CharacterBody2D
 	get_parent().add_child(enemy)
 	enemy.global_position = sp.global_position
-	enemy.died.connect(_on_enemy_died)
+	if enemy.has_signal("died"):
+		enemy.died.connect(_on_enemy_died)
 	_live_enemies += 1
 
-func _on_enemy_died(enemy: EnemyBase) -> void:
+func _on_enemy_died(enemy: Node) -> void:
 	_live_enemies = max(0, _live_enemies - 1)
 	director.on_enemy_killed(enemy)
 

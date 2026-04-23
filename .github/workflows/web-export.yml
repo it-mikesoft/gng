@@ -1,0 +1,55 @@
+name: Web Export
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot 4.3
+        run: |
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q Godot_v4.3-stable_linux.x86_64.zip
+          mv Godot_v4.3-stable_linux.x86_64 /usr/local/bin/godot
+          chmod +x /usr/local/bin/godot
+
+      - name: Install Web export templates
+        run: |
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.3.stable
+          python3 -c "
+          import zipfile, os
+          with zipfile.ZipFile('Godot_v4.3-stable_export_templates.tpz') as z:
+              for m in z.namelist():
+                  if 'web' in m.lower():
+                      z.extract(m, '/tmp/templates')
+          import shutil, glob
+          for f in glob.glob('/tmp/templates/**/*web*', recursive=True):
+              shutil.copy(f, os.path.expanduser('~/.local/share/godot/export_templates/4.3.stable/'))
+          "
+
+      - name: Export
+        run: |
+          mkdir -p dist
+          cd game
+          godot --headless --export-release "Web" ../dist/index.html 2>&1
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: dist/
+          retention-days: 7
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
+          cname: ""
