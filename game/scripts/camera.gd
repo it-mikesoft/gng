@@ -13,6 +13,9 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(_target_node):
+		_target_node = get_tree().get_first_node_in_group("player")
+		if is_instance_valid(_target_node):
+			global_position = _target_node.global_position
 		return
 	global_position = global_position.lerp(
 		_target_node.global_position,

@@ -104,10 +104,9 @@ func _tick_iframes(delta: float) -> void:
 		sprite.visible = true
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
-	if body.has_method("get_knockback_dir"):
-		take_damage(body.get_knockback_dir(global_position))
-	else:
-		take_damage(1)
+	if not body.has_method("get_knockback_dir"):
+		return
+	take_damage(body.get_knockback_dir(global_position))
 
 func take_damage(knock_dir: int = 1) -> void:
 	if invincible or state == State.DEAD:
