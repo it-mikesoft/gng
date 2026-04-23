@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3 uid="uid://bhud001"]
+
+[ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="LivesLabel" type="Label" parent="."]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 120.0
+offset_bottom = 20.0
+text = "LIVES x3"
+
+[node name="GameOverPanel" type="Panel" parent="."]
+visible = false
+offset_left = 80.0
+offset_top = 60.0
+offset_right = 240.0
+offset_bottom = 120.0
+
+[node name="GameOverLabel" type="Label" parent="GameOverPanel"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 152.0
+offset_bottom = 52.0
+text = "GAME OVER"
+horizontal_alignment = 1
+vertical_alignment = 1

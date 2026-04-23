@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://bplayer001"]
+
+[ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+
+[node name="WeaponSpawn" type="Marker2D" parent="."]
+position = Vector2(12, 0)
+
+[node name="Hurtbox" type="Area2D" parent="."]
+
+[node name="Hurtbox/CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]

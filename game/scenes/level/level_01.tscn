@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://blevel01"]
+
+[ext_resource type="PackedScene" uid="uid://bplayer001" path="res://scenes/player/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" uid="uid://bhud001" path="res://scenes/ui/hud.tscn" id="2_hud"]
+[ext_resource type="Script" path="res://scripts/checkpoint.gd" id="3_checkpoint"]
+
+[node name="Level01" type="Node2D"]
+
+[node name="Ground" type="StaticBody2D" parent="."]
+
+[node name="GroundShape" type="CollisionShape2D" parent="Ground"]
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector2(40, 148)
+
+[node name="Checkpoint" type="Area2D" parent="."]
+position = Vector2(160, 148)
+script = ExtResource("3_checkpoint")
+
+[node name="CheckpointShape" type="CollisionShape2D" parent="Checkpoint"]
+
+[node name="HUD" parent="." instance=ExtResource("2_hud")]
