@@ -1,0 +1,19 @@
+# Godot
+.import/
+.export/
+.export_presets.cfg
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python / tools
+__pycache__/
+*.pyc
+
+# Audio/image temp
+*.tmp
+*.bak
+
+# Local env
+.env

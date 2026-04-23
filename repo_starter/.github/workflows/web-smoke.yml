@@ -1,0 +1,11 @@
+name: web-smoke
+
+on:
+  workflow_dispatch:
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "Aggiungere qui smoke test e build Web quando il progetto Godot sarà inizializzato."
