@@ -2,7 +2,6 @@ extends CharacterBody2D
 
 enum State { IDLE, WALK, JUMP, FALL, HURT, DEAD }
 
-# Tuning — from BDR-002
 const WALK_SPEED    := 80.0
 const JUMP_VELOCITY := -280.0
 const GRAVITY       := 600.0
@@ -10,27 +9,43 @@ const KNOCKBACK     := Vector2(100.0, -160.0)
 const IFRAMES_DUR   := 2.0
 const BLINK_RATE    := 0.1
 
+# Sprite sheet frame sizes (pixels, already 2× scaled by gen_sprites.py)
+const SPR_W := 24
+const SPR_H := 48
+
 @export var weapon_scene: PackedScene
 
-@onready var sprite        : AnimatedSprite2D = $AnimatedSprite2D
-@onready var weapon_spawn  : Marker2D         = $WeaponSpawn
-@onready var hurtbox       : Area2D           = $Hurtbox
+@onready var sprite       : AnimatedSprite2D = $AnimatedSprite2D
+@onready var weapon_spawn : Marker2D         = $WeaponSpawn
+@onready var hurtbox      : Area2D           = $Hurtbox
 
-var state       : State = State.IDLE
-var facing      : int   = 1          # 1 = right, -1 = left
-var jump_hvel   : float = 0.0        # locked horizontal vel on jump
-var airborne    : bool  = false
-var invincible  : bool  = false
-var iframes_t   : float = 0.0
-var blink_t     : float = 0.0
+var state      : State = State.IDLE
+var facing     : int   = 1
+var jump_hvel  : float = 0.0
+var airborne   : bool  = false
+var invincible : bool  = false
+var iframes_t  : float = 0.0
+var blink_t    : float = 0.0
+var _prev_state: State = State.IDLE
 
 func _ready() -> void:
 	add_to_group("player")
 	GameManager.register_player(self)
 	hurtbox.body_entered.connect(_on_hurtbox_body_entered)
-	if sprite.sprite_frames == null:
-		sprite.hide()
+	_load_sprites()
 	_create_camera()
+
+func _load_sprites() -> void:
+	var sf := SpriteLoader.make_frames(
+		"res://assets/sprites/player/player_idle.png", "idle", 1, SPR_W, SPR_H, 2.0)
+	SpriteLoader.add_anim(sf,
+		"res://assets/sprites/player/player_walk.png", "walk", 4, SPR_W, SPR_H, 8.0)
+	SpriteLoader.add_anim(sf,
+		"res://assets/sprites/player/player_jump.png", "jump", 1, SPR_W, SPR_H, 2.0)
+	sprite.sprite_frames = sf
+	sprite.offset        = Vector2(0, -SPR_H * 0.5 + 11)
+	sprite.show()
+	sprite.play("idle")
 
 func _create_camera() -> void:
 	var cam := Camera2D.new()
@@ -50,6 +65,7 @@ func _physics_process(delta: float) -> void:
 			if is_on_floor():
 				state = State.IDLE
 			_tick_iframes(delta)
+			_animate()
 			return
 
 	_apply_gravity(delta)
@@ -59,6 +75,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	_update_state()
 	_tick_iframes(delta)
+	_animate()
 
 func _apply_gravity(delta: float) -> void:
 	if not is_on_floor():
@@ -66,30 +83,26 @@ func _apply_gravity(delta: float) -> void:
 
 func _handle_horizontal() -> void:
 	if airborne:
-		# GNG commitment: horizontal locked to jump-start velocity
 		velocity.x = jump_hvel
 		return
 	var dir := Input.get_axis("move_left", "move_right")
 	velocity.x = dir * WALK_SPEED
 	if dir != 0:
-		facing = int(sign(dir))
+		facing        = int(sign(dir))
 		sprite.flip_h = facing < 0
 
 func _handle_jump() -> void:
 	if is_on_floor() and airborne:
 		airborne = false
-
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
-		jump_hvel  = velocity.x   # lock current horizontal
+		jump_hvel  = velocity.x
 		airborne   = true
 
 func _handle_attack() -> void:
-	if not Input.is_action_just_pressed("attack"):
+	if not Input.is_action_just_pressed("attack") or weapon_scene == null:
 		return
-	if weapon_scene == null:
-		return
-	var w: Node2D = weapon_scene.instantiate()
+	var w : Node2D = weapon_scene.instantiate()
 	get_parent().add_child(w)
 	w.global_position = weapon_spawn.global_position
 	w.set_direction(facing)
@@ -100,14 +113,24 @@ func _update_state() -> void:
 	else:
 		state = State.JUMP if velocity.y < 0.0 else State.FALL
 
+func _animate() -> void:
+	if state == _prev_state:
+		return
+	_prev_state = state
+	match state:
+		State.IDLE:               sprite.play("idle")
+		State.WALK:               sprite.play("walk")
+		State.JUMP, State.FALL:   sprite.play("jump")
+		State.HURT, State.DEAD:   sprite.play("idle")
+
 func _tick_iframes(delta: float) -> void:
 	if not invincible:
 		return
 	iframes_t -= delta
 	blink_t   -= delta
 	if blink_t <= 0.0:
-		blink_t         = BLINK_RATE
-		sprite.visible  = not sprite.visible
+		blink_t        = BLINK_RATE
+		sprite.visible = not sprite.visible
 	if iframes_t <= 0.0:
 		invincible     = false
 		sprite.visible = true
@@ -143,3 +166,4 @@ func respawn() -> void:
 	iframes_t  = IFRAMES_DUR
 	blink_t    = BLINK_RATE
 	airborne   = false
+	sprite.play("idle")

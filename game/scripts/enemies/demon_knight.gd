@@ -21,6 +21,16 @@ func _ready() -> void:
 	if spear_scene == null:
 		spear_scene = load("res://scenes/weapons/lance.tscn")
 
+func _load_sprites() -> void:
+	var sf := SpriteLoader.make_frames(
+		"res://assets/sprites/enemies/demon_knight_walk.png", "walk", 4, 28, 48, 6.0)
+	sprite.sprite_frames = sf
+	sprite.offset        = Vector2(0, -24)
+	sprite.show()
+	sprite.play("walk")
+
+func _placeholder_color() -> Color: return Color(0.4, 0.1, 0.5)
+
 func _update_logic(delta: float) -> void:
 	_apply_gravity(delta)
 	_tick_timers(delta)

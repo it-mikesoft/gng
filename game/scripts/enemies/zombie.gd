@@ -14,6 +14,16 @@ func _ready() -> void:
 	move_speed  = 30.0
 	score_value = 100
 
+func _load_sprites() -> void:
+	var sf := SpriteLoader.make_frames(
+		"res://assets/sprites/enemies/zombie_walk.png", "walk", 4, 24, 44, 6.0)
+	sprite.sprite_frames = sf
+	sprite.offset        = Vector2(0, -22)
+	sprite.show()
+	sprite.play("walk")
+
+func _placeholder_color() -> Color: return Color(0.3, 0.6, 0.2)
+
 func _update_logic(delta: float) -> void:
 	_apply_gravity(delta)
 

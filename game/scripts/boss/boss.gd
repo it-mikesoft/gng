@@ -48,6 +48,17 @@ func _ready() -> void:
 	if projectile_scene == null:
 		projectile_scene = load("res://scenes/boss/boss_projectile.tscn")
 	_auto_shapes()
+	_load_sprites()
+
+func _load_sprites() -> void:
+	var sf := SpriteLoader.make_frames(
+		"res://assets/sprites/boss/boss_p1.png", "p1", 2, 64, 96, 4.0)
+	SpriteLoader.add_anim(sf,
+		"res://assets/sprites/boss/boss_p2.png", "p2", 2, 64, 96, 6.0)
+	sprite.sprite_frames = sf
+	sprite.offset        = Vector2(0, -48)
+	sprite.show()
+	sprite.play("p1")
 
 func _auto_shapes() -> void:
 	var cs : CollisionShape2D = get_node_or_null("CollisionShape2D")
@@ -206,9 +217,9 @@ func take_damage(amount: int = 1) -> void:
 func _enter_phase_two() -> void:
 	phase = Phase.TWO
 	phase_changed.emit(2)
-	# Brief invulnerability window during transition
 	stun_timer = 1.5
 	state      = BossState.STUNNED
+	sprite.play("p2")
 
 func _die() -> void:
 	state = BossState.DEAD

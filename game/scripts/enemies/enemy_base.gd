@@ -23,8 +23,10 @@ func _ready() -> void:
 	hp         = max_hp
 	player_ref = get_tree().get_first_node_in_group("player") as CharacterBody2D
 	_auto_shapes()
+	_load_sprites()
 	if sprite.sprite_frames == null:
 		sprite.hide()
+		_add_placeholder()
 
 func _auto_shapes() -> void:
 	var cs : CollisionShape2D = get_node_or_null("CollisionShape2D")
@@ -37,6 +39,19 @@ func _auto_shapes() -> void:
 		var s := RectangleShape2D.new()
 		s.size = collision_size
 		hb.shape = s
+
+func _load_sprites() -> void:
+	pass  # override in subclass
+
+func _add_placeholder() -> void:
+	var ph : Node2D = preload("res://scripts/debug/draw_placeholder.gd").new()
+	ph.set("size",            collision_size)
+	ph.set("color",           _placeholder_color())
+	ph.set("static_geometry", false)
+	add_child(ph)
+
+func _placeholder_color() -> Color:
+	return Color.MAGENTA
 
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:

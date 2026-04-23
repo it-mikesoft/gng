@@ -19,6 +19,16 @@ func _ready() -> void:
 	score_value = 200
 	origin_pos  = global_position
 
+func _load_sprites() -> void:
+	var sf := SpriteLoader.make_frames(
+		"res://assets/sprites/enemies/crow_fly.png", "fly", 4, 32, 24, 8.0)
+	sprite.sprite_frames = sf
+	sprite.offset        = Vector2(0, -12)
+	sprite.show()
+	sprite.play("fly")
+
+func _placeholder_color() -> Color: return Color(0.1, 0.1, 0.15)
+
 func _update_logic(delta: float) -> void:
 	match crow_state:
 		CrowState.PERCHED:

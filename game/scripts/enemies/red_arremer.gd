@@ -26,6 +26,16 @@ func _ready() -> void:
 	hp          = max_hp
 	origin_pos  = global_position
 
+func _load_sprites() -> void:
+	var sf := SpriteLoader.make_frames(
+		"res://assets/sprites/enemies/red_arremer_fly.png", "fly", 4, 32, 36, 8.0)
+	sprite.sprite_frames = sf
+	sprite.offset        = Vector2(0, -18)
+	sprite.show()
+	sprite.play("fly")
+
+func _placeholder_color() -> Color: return Color(0.8, 0.3, 0.1)
+
 func _update_logic(delta: float) -> void:
 	hover_t += delta
 	match arremer_state:
