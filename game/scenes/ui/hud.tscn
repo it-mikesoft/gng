@@ -70,6 +70,16 @@ text = "press any key"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="AnnounceLabel" type="Label" parent="."]
+modulate = Color(1, 0.2, 0.2, 0)
+offset_left = 0.0
+offset_top = 80.0
+offset_right = 320.0
+offset_bottom = 96.0
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="BossBarPanel" type="Panel" parent="."]
 visible = false
 offset_left = 60.0

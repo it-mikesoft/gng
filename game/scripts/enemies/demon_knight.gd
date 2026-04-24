@@ -69,14 +69,15 @@ func _raise_shield() -> void:
 	velocity.x   = 0.0
 
 func _throw_spear() -> void:
-	state          = State.ATTACK
+	state           = State.ATTACK
 	attack_cooldown = ATTACK_COOLDOWN
-	velocity.x     = 0.0
+	velocity.x      = 0.0
 	if spear_scene == null:
 		return
 	var s : Node2D = spear_scene.instantiate()
 	get_parent().add_child(s)
-	s.global_position = global_position
+	s.global_position = global_position + Vector2(facing * 14, 0)
+	s.set("target_group", "player")
 	s.set_direction(facing)
 
 func _hit_from_front() -> bool:

@@ -221,6 +221,7 @@ func take_damage(amount: int = 1) -> void:
 func _enter_phase_two() -> void:
 	phase = Phase.TWO
 	phase_changed.emit(2)
+	GameManager.announce_boss_phase(2)
 	stun_timer = 1.5
 	state      = BossState.STUNNED
 	sprite.play("p2")

@@ -6,6 +6,7 @@ signal game_over
 signal player_respawning
 signal game_won
 signal boss_hp_changed(current: int, maximum: int)
+signal boss_phase_changed(phase: int)
 
 const MAX_LIVES := 3
 
@@ -41,6 +42,9 @@ func on_player_died() -> void:
 
 func update_boss_hp(current: int, maximum: int) -> void:
 	boss_hp_changed.emit(current, maximum)
+
+func announce_boss_phase(phase: int) -> void:
+	boss_phase_changed.emit(phase)
 
 func on_boss_defeated() -> void:
 	boss_hp_changed.emit(0, 1)

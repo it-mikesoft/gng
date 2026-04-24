@@ -7,6 +7,7 @@ extends CanvasLayer
 @onready var boss_bar_panel  : Panel     = $BossBarPanel
 @onready var boss_bar        : ProgressBar = $BossBarPanel/BossBar
 @onready var boss_label      : Label     = $BossBarPanel/BossLabel
+@onready var announce_label  : Label     = $AnnounceLabel
 
 func _ready() -> void:
 	GameManager.lives_changed.connect(_on_lives_changed)
@@ -14,9 +15,11 @@ func _ready() -> void:
 	GameManager.game_over.connect(_on_game_over)
 	GameManager.game_won.connect(_on_game_won)
 	GameManager.boss_hp_changed.connect(_on_boss_hp_changed)
+	GameManager.boss_phase_changed.connect(_on_boss_phase_changed)
 	game_over_panel.hide()
 	win_panel.hide()
 	boss_bar_panel.hide()
+	announce_label.modulate.a = 0.0
 	_on_lives_changed(GameManager.lives)
 	_on_score_changed(GameManager.score)
 
@@ -33,6 +36,14 @@ func _on_boss_hp_changed(current: int, maximum: int) -> void:
 	boss_bar_panel.show()
 	boss_bar.max_value = maximum
 	boss_bar.value     = current
+
+func _on_boss_phase_changed(phase: int) -> void:
+	announce_label.text      = "- PHASE " + str(phase) + " -"
+	announce_label.modulate  = Color(1.0, 0.2, 0.2, 1.0)
+	var tw := create_tween()
+	tw.tween_property(announce_label, "modulate:a", 1.0, 0.1)
+	tw.tween_interval(1.5)
+	tw.tween_property(announce_label, "modulate:a", 0.0, 0.5)
 
 func _on_game_over() -> void:
 	boss_bar_panel.hide()

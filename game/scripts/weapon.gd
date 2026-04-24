@@ -5,6 +5,7 @@ const LIFETIME   := 2.0
 
 var direction    := 1
 var _time        := 0.0
+var target_group : String = "enemies"   # set to "player" for enemy projectiles
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
@@ -28,6 +29,7 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 
 func _on_body_entered(body: Node2D) -> void:
-	if body.has_method("take_damage"):
-		body.take_damage(-direction)
+	if target_group.is_empty() or body.is_in_group(target_group):
+		if body.has_method("take_damage"):
+			body.take_damage(-direction)
 	queue_free()
