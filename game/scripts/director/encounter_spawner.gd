@@ -35,7 +35,16 @@ func _process(delta: float) -> void:
 func _try_spawn() -> void:
 	if spawn_points.is_empty():
 		return
-	var sp   : Node2D = spawn_points[randi() % spawn_points.size()]
+	# Pick a spawn point at least 80px from player
+	var player := GameManager.player
+	var candidates : Array[Node2D] = []
+	for p in spawn_points:
+		if not is_instance_valid(player) or \
+				p.global_position.distance_to(player.global_position) >= 80.0:
+			candidates.append(p)
+	if candidates.is_empty():
+		return
+	var sp   : Node2D = candidates[randi() % candidates.size()]
 	var type : String = director.pick_enemy_type()
 	var scene : PackedScene = _scene_for(type)
 	if scene == null:

@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3 uid="uid://btitle001"]
+
+[ext_resource type="Script" path="res://scripts/title_screen.gd" id="1_title"]
+
+[node name="TitleScreen" type="Node2D"]
+script = ExtResource("1_title")
+
+[node name="TitleLabel" type="Label" parent="."]
+offset_left = 0.0
+offset_top = 50.0
+offset_right = 320.0
+offset_bottom = 80.0
+text = "GHOSTS 'N GOBLINS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SubLabel" type="Label" parent="."]
+offset_left = 0.0
+offset_top = 82.0
+offset_right = 320.0
+offset_bottom = 96.0
+text = "A tribute"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PressLabel" type="Label" parent="."]
+offset_left = 0.0
+offset_top = 140.0
+offset_right = 320.0
+offset_bottom = 154.0
+text = "PRESS ANY KEY"
+horizontal_alignment = 1
+vertical_alignment = 1

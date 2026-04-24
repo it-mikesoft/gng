@@ -90,5 +90,17 @@ func _die() -> void:
 	state = State.DEAD
 	GameManager.add_score(score_value)
 	AudioManager.play_sfx("enemy_die")
+	_spawn_score_popup()
 	died.emit(self)
 	queue_free()
+
+func _spawn_score_popup() -> void:
+	var lbl := Label.new()
+	lbl.text     = "+" + str(score_value)
+	lbl.position = global_position + Vector2(-8, -20)
+	lbl.modulate = Color(1.0, 0.9, 0.2)
+	get_parent().add_child(lbl)
+	var tw := get_tree().create_tween()
+	tw.tween_property(lbl, "position:y", lbl.position.y - 32.0, 0.7)
+	tw.parallel().tween_property(lbl, "modulate:a", 0.0, 0.7)
+	tw.tween_callback(lbl.queue_free)
