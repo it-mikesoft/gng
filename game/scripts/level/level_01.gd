@@ -47,8 +47,9 @@ func _add_platform(pos: Vector2, size: Vector2) -> void:
 	var sb := StaticBody2D.new()
 	var cs := CollisionShape2D.new()
 	var sh := RectangleShape2D.new()
-	sh.size  = size
-	cs.shape = sh
+	sh.size              = size
+	cs.shape             = sh
+	cs.one_way_collision = true   # pass through from below
 	sb.add_child(cs)
 	sb.position = pos
 	add_child(sb)

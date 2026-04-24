@@ -13,9 +13,13 @@ func _ready() -> void:
 		var s := CircleShape2D.new()
 		s.radius = 4.0
 		cs.shape = s
+	var sp : Sprite2D = get_node_or_null("Sprite2D")
+	if sp and ResourceLoader.exists("res://assets/sprites/weapons/fireball.png"):
+		sp.texture = load("res://assets/sprites/weapons/fireball.png")
 
 func set_velocity_from_angle(angle: float) -> void:
-	_vel = Vector2(cos(angle), sin(angle)) * SPEED
+	_vel     = Vector2(cos(angle), sin(angle)) * SPEED
+	rotation = angle
 
 func _physics_process(delta: float) -> void:
 	position += _vel * delta

@@ -75,6 +75,9 @@ func take_damage(amount: int = 1) -> void:
 	if state == State.DEAD:
 		return
 	hp -= amount
+	sprite.modulate = Color(1.0, 0.25, 0.25)
+	get_tree().create_timer(0.12).timeout.connect(
+		func(): if is_instance_valid(self): sprite.modulate = Color.WHITE)
 	if hp <= 0:
 		_die()
 	else:

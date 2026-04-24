@@ -13,6 +13,9 @@ func _ready() -> void:
 		var s := RectangleShape2D.new()
 		s.size = Vector2(8, 4)
 		cs.shape = s
+	var sp : Sprite2D = get_node_or_null("Sprite2D")
+	if sp and ResourceLoader.exists("res://assets/sprites/weapons/lance.png"):
+		sp.texture = load("res://assets/sprites/weapons/lance.png")
 
 func set_direction(dir: int) -> void:
 	direction     = dir
