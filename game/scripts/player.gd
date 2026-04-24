@@ -47,15 +47,31 @@ func _load_sprites() -> void:
 	sprite.show()
 	sprite.play("idle")
 
+var _cam       : Camera2D
+var _shake_t   : float = 0.0
+const SHAKE_DUR  := 0.3
+const SHAKE_MAG  := 3.0
+
 func _create_camera() -> void:
-	var cam := Camera2D.new()
-	cam.limit_left   = 0
-	cam.limit_right  = 1280
-	cam.limit_top    = -400
-	cam.limit_bottom = 400
-	add_child(cam)
+	_cam             = Camera2D.new()
+	_cam.limit_left  = 0
+	_cam.limit_right = 1280
+	_cam.limit_top   = -400
+	_cam.limit_bottom = 400
+	add_child(_cam)
+
+func _shake_camera(duration: float = SHAKE_DUR) -> void:
+	_shake_t = duration
 
 func _physics_process(delta: float) -> void:
+	if _shake_t > 0.0 and is_instance_valid(_cam):
+		_shake_t -= delta
+		_cam.offset = Vector2(
+			randf_range(-SHAKE_MAG, SHAKE_MAG),
+			randf_range(-SHAKE_MAG, SHAKE_MAG))
+		if _shake_t <= 0.0:
+			_cam.offset = Vector2.ZERO
+
 	match state:
 		State.DEAD:
 			return
@@ -149,6 +165,7 @@ func take_damage(knock_dir: int = 1) -> void:
 	if invincible or state == State.DEAD:
 		return
 	GameManager.lose_life()
+	_shake_camera()
 	if GameManager.lives <= 0:
 		_die()
 		return

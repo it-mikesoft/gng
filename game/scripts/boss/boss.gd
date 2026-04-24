@@ -92,6 +92,7 @@ func _do_enter() -> void:
 	if not _entered:
 		_entered = true
 		GameManager.set_checkpoint(global_position + Vector2(-60, 0))
+		GameManager.update_boss_hp(hp, MAX_HP)
 		AudioManager.play_music("boss")
 	state = BossState.ADVANCE
 
@@ -206,6 +207,7 @@ func take_damage(amount: int = 1) -> void:
 		return
 	hp -= amount
 	AudioManager.play_sfx("boss_hit")
+	GameManager.update_boss_hp(hp, MAX_HP)
 	stun_timer = STUN_DURATION
 	state      = BossState.STUNNED
 

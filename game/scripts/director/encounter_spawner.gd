@@ -12,7 +12,7 @@ class_name EncounterSpawner
 @export var red_arremer_scene  : PackedScene
 
 @onready var director          : Node       = $AiDirector
-@onready var spawn_points      : Array[Node2D]
+var spawn_points               : Array[Node2D] = []
 
 var _spawn_timer  : float = 0.0
 var _next_interval: float = 4.0

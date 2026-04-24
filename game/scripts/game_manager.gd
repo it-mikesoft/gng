@@ -5,6 +5,7 @@ signal score_changed(score: int)
 signal game_over
 signal player_respawning
 signal game_won
+signal boss_hp_changed(current: int, maximum: int)
 
 const MAX_LIVES := 3
 
@@ -38,7 +39,11 @@ func on_player_died() -> void:
 	await get_tree().create_timer(1.5).timeout
 	_respawn()
 
+func update_boss_hp(current: int, maximum: int) -> void:
+	boss_hp_changed.emit(current, maximum)
+
 func on_boss_defeated() -> void:
+	boss_hp_changed.emit(0, 1)
 	game_won.emit()
 
 func _respawn() -> void:

@@ -69,3 +69,28 @@ offset_bottom = 70.0
 text = "press any key"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="BossBarPanel" type="Panel" parent="."]
+visible = false
+offset_left = 60.0
+offset_top = 158.0
+offset_right = 260.0
+offset_bottom = 179.0
+
+[node name="BossLabel" type="Label" parent="BossBarPanel"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 200.0
+offset_bottom = 10.0
+text = "BOSS"
+horizontal_alignment = 1
+
+[node name="BossBar" type="ProgressBar" parent="BossBarPanel"]
+offset_left = 0.0
+offset_top = 11.0
+offset_right = 200.0
+offset_bottom = 21.0
+min_value = 0.0
+max_value = 20.0
+value = 20.0
+show_percentage = false
