@@ -4,6 +4,7 @@ const GROUND_Y     := 162.0
 const LEVEL_WIDTH  := 1280.0
 
 func _ready() -> void:
+	set_process_unhandled_key_input(false)
 	_build_geometry()
 	_setup_player()
 	_setup_checkpoint()
