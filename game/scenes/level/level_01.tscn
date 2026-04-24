@@ -1,15 +1,19 @@
-[gd_scene load_steps=7 format=3 uid="uid://blevel01"]
+[gd_scene load_steps=9 format=3 uid="uid://blevel01"]
 
-[ext_resource type="Script"      path="res://scripts/level/level_01.gd"             id="0_level"]
+[ext_resource type="Script" path="res://scripts/level/level_01.gd" id="0_level"]
 [ext_resource type="PackedScene" uid="uid://bplayer001" path="res://scenes/player/player.tscn" id="1_player"]
-[ext_resource type="PackedScene" uid="uid://bhud001"    path="res://scenes/ui/hud.tscn"        id="2_hud"]
-[ext_resource type="PackedScene" uid="uid://bboss001"   path="res://scenes/boss/boss.tscn"     id="3_boss"]
-[ext_resource type="Script"      path="res://scripts/checkpoint.gd"                 id="4_checkpoint"]
-[ext_resource type="Script"      path="res://scripts/director/encounter_spawner.gd" id="5_spawner"]
-[ext_resource type="Script"      path="res://scripts/director/ai_director.gd"       id="7_dir"]
+[ext_resource type="PackedScene" uid="uid://bhud001" path="res://scenes/ui/hud.tscn" id="2_hud"]
+[ext_resource type="PackedScene" uid="uid://bboss001" path="res://scenes/boss/boss.tscn" id="3_boss"]
+[ext_resource type="Script" path="res://scripts/checkpoint.gd" id="4_checkpoint"]
+[ext_resource type="Script" path="res://scripts/director/encounter_spawner.gd" id="5_spawner"]
+[ext_resource type="Script" path="res://scripts/background.gd" id="6_bg"]
+[ext_resource type="Script" path="res://scripts/director/ai_director.gd" id="7_dir"]
 
 [node name="Level01" type="Node2D"]
 script = ExtResource("0_level")
+
+[node name="Background" type="Node2D" parent="."]
+script = ExtResource("6_bg")
 
 [node name="Ground" type="StaticBody2D" parent="."]
 
