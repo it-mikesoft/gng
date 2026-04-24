@@ -21,17 +21,20 @@ jobs:
       - name: Install Web export templates
         run: |
           wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
-          mkdir -p ~/.local/share/godot/export_templates/4.3.stable
+          DEST=~/.local/share/godot/export_templates/4.3.stable
+          mkdir -p "$DEST"
           python3 -c "
-          import zipfile, os
+          import zipfile, os, shutil, glob
           with zipfile.ZipFile('Godot_v4.3-stable_export_templates.tpz') as z:
               for m in z.namelist():
                   if 'web' in m.lower():
-                      z.extract(m, '/tmp/templates')
-          import shutil, glob
-          for f in glob.glob('/tmp/templates/**/*web*', recursive=True):
-              shutil.copy(f, os.path.expanduser('~/.local/share/godot/export_templates/4.3.stable/'))
+                      fname = os.path.basename(m)
+                      if fname:
+                          dest = os.path.expanduser('~/.local/share/godot/export_templates/4.3.stable/' + fname)
+                          with open(dest, 'wb') as f:
+                              f.write(z.read(m))
           "
+          echo "4.3.stable" > "$DEST/version"
 
       - name: Export
         run: |
@@ -52,4 +55,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: dist
-          cname: ""
