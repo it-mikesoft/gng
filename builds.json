@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-07-25T21:37:41+02:00",
+  "versions": {
+    "v0": {
+      "label": "old",
+      "pck_bytes": 6529216,
+      "pck_sha256": "7b52fb2c1d4d57e8a553b157316c98a6c6875ed90a47145d18f0bea947ef9285"
+    },
+    "v1": {
+      "label": "gameplay-corrected",
+      "pck_bytes": 6756928,
+      "pck_sha256": "5b4e5c741e778f7485de747e89c7f5678a760431faf816e3d6341a3a0f7710de"
+    },
+    "v2": {
+      "label": "uhd-ai-backgrounds",
+      "pck_bytes": 76709216,
+      "pck_sha256": "0def18bc9906b757c235b4855b4cd18663d20c5676c2c5cdf53a51b632b0b176"
+    }
+  }
+}
