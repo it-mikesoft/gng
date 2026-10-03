@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-10-03T20:52:58Z",
+  "versions": {
+    "v0": {
+      "label": "old",
+      "pck_bytes": 6529216,
+      "pck_sha256": "7b52fb2c1d4d57e8a553b157316c98a6c6875ed90a47145d18f0bea947ef9285"
+    },
+    "v1": {
+      "label": "gameplay-corrected",
+      "pck_bytes": 6756928,
+      "pck_sha256": "5b4e5c741e778f7485de747e89c7f5678a760431faf816e3d6341a3a0f7710de"
+    },
+    "v2": {
+      "label": "uhd-ai-backgrounds",
+      "pck_bytes": 76709216,
+      "pck_sha256": "0def18bc9906b757c235b4855b4cd18663d20c5676c2c5cdf53a51b632b0b176"
+    },
+    "v16": {
+      "label": "platform-jump-tile-snap",
+      "version": "1.1.0",
+      "revision": "58de373",
+      "built_at": "2026-10-03T13:45:03Z",
+      "pck_bytes": 67500704,
+      "pck_sha256": "7ab3ec0ceb3035d320fb542b2362b41a632a0354aea277ff226a07e1691a4257"
+    },
+    "v17": {
+      "label": "ladder-down-petite-devil-dodge-death-fx",
+      "version": "1.1.0",
+      "revision": "65a1d36",
+      "built_at": "2026-10-03T15:03:04Z",
+      "pck_bytes": 67503152,
+      "pck_sha256": "4d0700f37259dd50a6dd7be2667fbec304f9f0f1c9f97db18d38d8bc2f8c871a"
+    },
+    "v18": {
+      "label": "monsters-repainted-d070-a050",
+      "version": "1.1.0",
+      "revision": "201c4e0",
+      "built_at": "2026-10-03T20:52:58Z",
+      "pck_bytes": 67871120,
+      "pck_sha256": "e4c2c7ab4873aa6c9e281ad1d19f8eb54a7df028c10812a16dc76b7ae43ac209"
+    }
+  },
+  "latest": "v18",
+  "last_slot": 18
+}
