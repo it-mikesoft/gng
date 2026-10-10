@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ghosts 'n Goblins — A Tribute</title>
+<meta name="description" content="Tributo amatoriale e non ufficiale al classico arcade CAPCOM del 1985.">
+<style>
+  :root { --bg:#14122b; --panel:#1d1940; --line:#3a3270; --text:#ece9ff; --dim:#b3acdf; --gold:#f2c14e; --red:#c0272d; --h:clamp(340px,64vh,600px); }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  a { color:var(--gold); }
+  html[data-lang="it"] [lang="en"], html[data-lang="en"] [lang="it"] { display:none !important; }
+  .langsw { position:absolute; z-index:3; top:12px; right:12px; display:flex; border:2px solid #000; outline:2px solid var(--line); }
+  .langsw button { background:#000c; color:var(--dim); border:0; padding:6px 10px; font:700 13px system-ui,sans-serif; cursor:pointer; }
+  .langsw button.on { background:var(--gold); color:#1b1400; }
+  canvas.px { image-rendering:pixelated; image-rendering:crisp-edges; display:block; max-width:100%; height:auto; }
+  .hero { position:relative; height:var(--h); overflow:hidden; background:#14122b url(home/hero.webp) no-repeat left bottom / auto 100%;
+          animation:pan 80s ease-in-out infinite alternate; border-bottom:4px solid #000; }
+  @keyframes pan { from { background-position-x:0; } to { background-position-x:calc(100vw - var(--h) * 4.5703); } }
+  @media (prefers-reduced-motion:reduce) { .hero { animation:none; } }
+  .hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(20,18,43,.85) 0%, rgba(20,18,43,.15) 45%, rgba(20,18,43,0) 70%); pointer-events:none; }
+  .top { position:absolute; z-index:2; top:0; left:0; right:0; padding:clamp(18px,4vh,40px) 16px 0; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .logo { width:min(880px,94vw); height:auto; filter:drop-shadow(0 6px 10px rgba(0,0,0,.6)); }
+  .play { display:inline-flex; flex-direction:column; align-items:center; gap:8px; padding:14px 22px 12px; background:#000c; border:3px solid var(--gold);
+          text-decoration:none; box-shadow:0 0 0 3px #000, 0 10px 30px rgba(0,0,0,.5); }
+  .play:hover { background:#2a0a0ccc; border-color:#fff2b0; }
+  .blink { animation:blink 1.1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity:0; } }
+  .spr { position:absolute; z-index:1; height:calc(var(--h) * 64 / 448); width:auto; image-rendering:auto; filter:drop-shadow(0 4px 4px rgba(0,0,0,.5)); }
+  .spr.flip { transform:scaleX(-1); }
+  .hero .arthur { left:18%; bottom:calc(var(--h) * 50 / 448); }
+  .hero .zombie { left:58%; bottom:calc(var(--h) * 50 / 448); }
+  .hero .red_arremer { right:9%; top:36%; height:calc(var(--h) * 80 / 448); }
+  main { max-width:1000px; margin:0 auto; padding:30px 16px 40px; }
+  .support { text-align:center; color:var(--dim); margin:4px 0 0; font-size:15px; letter-spacing:.4px; }
+  .support b { color:var(--text); }
+  section { margin-top:46px; }
+  section > canvas.px { margin:0 0 16px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:12px; }
+  .card { display:flex; gap:14px; align-items:flex-start; background:var(--panel); border:3px solid #000; outline:2px solid var(--line); padding:14px 16px; }
+  .card .thumb { position:static; height:64px; width:auto; flex:none; filter:none; }
+  .card h3 { margin:0 0 4px; font-size:17px; color:var(--gold); } .card p { margin:0; color:var(--dim); font-size:15px; }
+  .keys { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:8px 18px; }
+  .keys div { display:flex; gap:12px; align-items:baseline; background:var(--panel); border:3px solid #000; outline:2px solid var(--line); padding:9px 14px; }
+  .keys kbd { flex:none; min-width:84px; font:700 14px ui-monospace,monospace; color:var(--gold); letter-spacing:.5px; }
+  .keys span.d { color:var(--dim); font-size:15px; }
+  details { background:var(--panel); border:3px solid #000; outline:2px solid var(--line); padding:4px 16px; }
+  summary { cursor:pointer; padding:12px 0; font-weight:600; }
+  .vers { display:flex; flex-direction:column; padding:0 0 12px; }
+  .ver { display:grid; grid-template-columns:56px 1fr auto; gap:12px; padding:8px 4px; border-top:1px solid var(--line); color:var(--text); text-decoration:none; font-size:15px; align-items:baseline; }
+  .ver:hover span { color:var(--gold); } .ver em { color:var(--dim); font-style:normal; font-size:13px; white-space:nowrap; }
+  .ver.latest b { color:var(--gold); }
+  .reserved { display:inline-flex; align-items:center; gap:10px; margin-top:4px; padding:12px 16px; background:var(--panel); border:3px solid #000; outline:2px solid var(--line); color:var(--text); text-decoration:none; }
+  .reserved:hover { outline-color:var(--gold); }
+  .coffee { display:flex; flex-wrap:wrap; gap:14px 20px; align-items:center; justify-content:space-between; background:var(--panel); border:3px solid #000; outline:2px solid var(--gold); padding:16px 18px; }
+  .coffee p { margin:0; color:var(--dim); max-width:620px; } .coffee strong { color:var(--text); }
+  .coffee a { display:inline-block; padding:10px 18px; background:var(--gold); color:#1b1400; font-weight:800; text-decoration:none; border:3px solid #000; }
+  .coffee a:hover { filter:brightness(1.08); }
+  footer { margin-top:52px; padding-top:22px; border-top:2px solid var(--line); color:var(--dim); font-size:14px; }
+  footer p { margin:0 0 10px; } footer strong { color:var(--text); }
+  footer .small { font-size:12px; margin-top:16px; }
+  @media (max-width:560px) { .ver { grid-template-columns:48px 1fr; } .ver em { grid-column:2; } .hero .zombie { left:62%; } .hero .red_arremer { display:none; } }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="langsw" role="group" aria-label="Lingua / Language"><button data-l="it">IT</button><button data-l="en">EN</button></div>
+  <img class="spr arthur" src="home/arthur.webp" alt="" width="64" height="64" loading="lazy">
+  <img class="spr zombie" src="home/zombie.webp" alt="" width="64" height="64" loading="lazy">
+  <img class="spr red_arremer" src="home/red_arremer.webp" alt="" width="96" height="80" loading="lazy">
+  <div class="top">
+    <img class="logo" src="home/logo.webp" alt="Ghosts 'n Goblins" width="1408" height="200">
+    <canvas class="px " data-t="A TRIBUTE" data-p="0" data-s="4" role="img" aria-label="A TRIBUTE"></canvas>
+    <a class="play" href="v40/" aria-label="Play / Gioca"><canvas lang="it" class="px " data-t="GIOCA" data-p="0" data-s="6" role="img" aria-label="GIOCA"></canvas><canvas lang="en" class="px " data-t="PLAY" data-p="0" data-s="6" role="img" aria-label="PLAY"></canvas><canvas lang="it" class="px blink" data-t="ULTIMA VERSIONE V40" data-p="2" data-s="2" role="img" aria-label="ULTIMA VERSIONE V40"></canvas><canvas lang="en" class="px blink" data-t="LATEST VERSION V40" data-p="2" data-s="2" role="img" aria-label="LATEST VERSION V40"></canvas></a>
+  </div>
+</header>
+<main>
+  <p class="support"><b>Supported by Opus, Fable, agents in Sonnet</b></p>
+  <p class="support"><span lang="it">Un omaggio non ufficiale al classico arcade CAPCOM del 1985: fedele all'originale, ridipinto in chiave moderna.</span><span lang="en">An unofficial tribute to CAPCOM's 1985 arcade classic: faithful to the original, repainted in a modern style.</span></p>
+  <section><canvas lang="it" class="px " data-t="MIGLIORAMENTI" data-p="2" data-s="3" role="img" aria-label="MIGLIORAMENTI"></canvas><canvas lang="en" class="px " data-t="IMPROVEMENTS" data-p="2" data-s="3" role="img" aria-label="IMPROVEMENTS"></canvas><div class="cards"><div class="card"><img class="spr thumb" src="home/arthur.webp" alt="" width="64" height="64" loading="lazy"><div><h3><span lang="it">Fedele all&#x27;arcade</span><span lang="en">Faithful to the arcade</span></h3><p><span lang="it">La fisica di Arthur, i salti, le armi, i nemici e i boss sono ricostruiti con cura per riprodurre fedelmente il comportamento del gioco da sala.</span><span lang="en">Arthur&#x27;s physics, jumps, weapons, enemies and bosses are carefully reconstructed to reproduce the behaviour of the coin-op faithfully.</span></p></div></div><div class="card"><img class="spr thumb" src="home/boss.webp" alt="" width="96" height="96" loading="lazy"><div><h3><span lang="it">Tutti i sette livelli</span><span lang="en">All seven stages</span></h3><p><span lang="it">Dal cimitero al palazzo di Astaroth, con i boss, le chiavi, i bonus nascosti e il finale da completare due volte, come in sala giochi.</span><span lang="en">From the graveyard to Astaroth&#x27;s palace, with the bosses, the keys, the hidden bonuses and the ending you must finish twice, as in the arcade.</span></p></div></div><div class="card"><img class="spr thumb" src="home/red_arremer.webp" alt="" width="96" height="80" loading="lazy"><div><h3><span lang="it">Grafica moderna</span><span lang="en">Modern graphics</span></h3><p><span lang="it">Sfondi e personaggi ridipinti in stile pittorico, con le stesse sagome, proporzioni e posizioni del gioco da sala. Si può passare anche a uno stile classico.</span><span lang="en">Backgrounds and characters repainted in a painterly style, with the same silhouettes, proportions and positions as the coin-op. A classic style is available too.</span></p></div></div><div class="card"><img class="spr thumb" src="home/zombie.webp" alt="" width="64" height="64" loading="lazy"><div><h3><span lang="it">Atmosfera da sala giochi</span><span lang="en">Arcade atmosphere</span></h3><p><span lang="it">Schermata del titolo, demo automatica, scena d&#x27;apertura, mappa tra i livelli e classifica con le iniziali, con le musiche e gli effetti del gioco da sala.</span><span lang="en">Title screen, attract demo, opening scene, map between stages and high-score table with initials, with the music and sound effects of the coin-op.</span></p></div></div><div class="card"><img class="spr flip thumb" src="home/crow.webp" alt="" width="32" height="32" loading="lazy"><div><h3><span lang="it">Si gioca ovunque</span><span lang="en">Play anywhere</span></h3><p><span lang="it">Tastiera, joypad e comandi touch per iPad e per il browser delle auto Tesla.</span><span lang="en">Keyboard, gamepad and touch controls for iPad and for the Tesla car browser.</span></p></div></div><div class="card"><img class="spr flip thumb" src="home/small_bat.webp" alt="" width="64" height="32" loading="lazy"><div><h3><span lang="it">Opzioni</span><span lang="en">Options</span></h3><p><span lang="it">Tasti configurabili e memorizzati nel browser, god mode, selettore del livello e scelta della grafica.</span><span lang="en">Rebindable keys stored in your browser, god mode, stage select and graphics choice.</span></p></div></div></div></section>
+  <section><canvas lang="it" class="px " data-t="COMANDI" data-p="2" data-s="3" role="img" aria-label="COMANDI"></canvas><canvas lang="en" class="px " data-t="CONTROLS" data-p="2" data-s="3" role="img" aria-label="CONTROLS"></canvas><div class="keys"><div><kbd>Frecce</kbd><span class="d"><span lang="it">muovi Arthur; giù per abbassarti, su per le scale</span><span lang="en">move Arthur; down to crouch, up on ladders</span></span></div><div><kbd>Spazio</kbd><span class="d"><span lang="it">salto (e INIZIA sul titolo)</span><span lang="en">jump (and START on the title)</span></span></div><div><kbd>Ctrl / Z</kbd><span class="d"><span lang="it">lancia l&#x27;arma</span><span lang="en">throw the weapon</span></span></div><div><kbd>P</kbd><span class="d"><span lang="it">pausa</span><span lang="en">pause</span></span></div><div><kbd>G</kbd><span class="d"><span lang="it">cambia grafica: Moderno, Originale, temi</span><span lang="en">switch graphics: Modern, Original, themes</span></span></div><div><kbd>M</kbd><span class="d"><span lang="it">cambia musica</span><span lang="en">switch music</span></span></div><div><kbd>Esc</kbd><span class="d"><span lang="it">OPZIONI (tasti, lingua, god mode, stage)</span><span lang="en">OPTIONS (keys, language, god mode, stage)</span></span></div><div><kbd>F2 / Tab</kbd><span class="d"><span lang="it">Moderno / Originale al volo</span><span lang="en">Modern / Original on the fly</span></span></div></div></section>
+  <section><canvas lang="it" class="px " data-t="VERSIONI" data-p="2" data-s="3" role="img" aria-label="VERSIONI"></canvas><canvas lang="en" class="px " data-t="VERSIONS" data-p="2" data-s="3" role="img" aria-label="VERSIONS"></canvas>
+    <details><summary><span lang="it">Tutte le versioni pubblicate (6) · ultima: v40 · Bottoni GFX, MUS e OPZ sul piede delle schermate; GOD solo in OPZIONI</span><span lang="en">All published versions (6) · latest: v40 · Bottoni GFX, MUS e OPZ sul piede delle schermate; GOD solo in OPZIONI</span></summary>
+      <div class="vers"><a class="ver latest" href="v40/"><b>v40</b><span><span lang="it">Bottoni GFX, MUS e OPZ sul piede delle schermate; GOD solo in OPZIONI</span><span lang="en">Bottoni GFX, MUS e OPZ sul piede delle schermate; GOD solo in OPZIONI</span></span><em>Opus 5</em></a><a class="ver" href="v39/"><b>v39</b><span><span lang="it">v1.1.0</span><span lang="en">v1.1.0</span></span><em>Opus 5</em></a><a class="ver" href="v38/"><b>v38</b><span><span lang="it">v1.1.0</span><span lang="en">v1.1.0</span></span><em>Opus 5</em></a><a class="ver" href="v2/"><b>v2</b><span><span lang="it">Sfondi dipinti in alta definizione</span><span lang="en">High-definition painted backgrounds</span></span><em>Fable 5*</em></a><a class="ver" href="v1/"><b>v1</b><span><span lang="it">Prima correzione del gameplay</span><span lang="en">First gameplay fixes</span></span><em>Fable 5*</em></a><a class="ver" href="v0/"><b>v0</b><span><span lang="it">Il gioco di partenza</span><span lang="en">The starting point</span></span><em>Codex (GPT)</em></a></div></details>
+  </section>
+  <section><canvas lang="it" class="px " data-t="SOSTIENI" data-p="2" data-s="3" role="img" aria-label="SOSTIENI"></canvas><canvas lang="en" class="px " data-t="SUPPORT" data-p="2" data-s="3" role="img" aria-label="SUPPORT"></canvas>
+    <div class="coffee"><p><span lang="it"><strong>Se ti è utile, offrimi un caffè.</strong> Questo tributo non ha sponsor e non vende niente. Se ti diverte, puoi contribuire — e se non ti va, giocalo lo stesso.</span><span lang="en"><strong>If you enjoy it, buy me a coffee.</strong> This tribute has no sponsors and sells nothing. If you like it, you can chip in — and if you'd rather not, play it anyway.</span></p>
+      <a href="https://www.paypal.com/donate/?business=SGNE3B4JZUT9S&no_recurring=0&item_name=Ghosts+%27n+Goblins+Tribute+non+ha+sponsor.+Se+ti+diverte%2C+questo+caff%C3%A8+lo+tiene+acceso.&currency_code=EUR" target="_blank" rel="noopener"><span lang="it">Offrimi un caffè</span><span lang="en">Buy me a coffee</span></a></div>
+  </section>
+  <footer>
+    <canvas lang="it" class="px " data-t="TRASPARENZA E TUTELE" data-p="2" data-s="2" role="img" aria-label="TRASPARENZA E TUTELE"></canvas><canvas lang="en" class="px " data-t="TRANSPARENCY AND RIGHTS" data-p="2" data-s="2" role="img" aria-label="TRANSPARENCY AND RIGHTS"></canvas>
+    <p><span lang="it"><strong>Che cos&#x27;è.</strong> Un tributo amatoriale, non ufficiale e senza scopo di lucro a <em>Ghosts 'n Goblins</em> (CAPCOM, 1985). Non è affiliato, approvato o sponsorizzato da CAPCOM. Non vende nulla e non mostra pubblicità. Le offerte sono volontarie, non danno accesso a nulla di più e sostengono solo il tempo del curatore.</span><span lang="en"><strong>What it is.</strong> An amateur, unofficial, non-profit tribute to <em>Ghosts 'n Goblins</em> (CAPCOM, 1985). It is not affiliated with, endorsed or sponsored by CAPCOM. It sells nothing and shows no ads. Donations are voluntary, unlock nothing and only support the curator's time.</span></p><p><span lang="it"><strong>Come nasce.</strong> Codice, grafica ridipinta e documentazione sono prodotti con sistemi di intelligenza artificiale (modelli Claude di Anthropic per il codice e le specifiche, modelli di generazione di immagini per la grafica), sotto la supervisione del curatore. Il comportamento del gioco è ricostruito per riprodurre fedelmente l'arcade e verificato con test automatici, ma possono restare differenze ed errori.</span><span lang="en"><strong>How it is made.</strong> Code, repainted graphics and documentation are produced with artificial intelligence systems (Anthropic's Claude models for code and specifications, image generation models for the graphics), under the curator's supervision. The game's behaviour is reconstructed to reproduce the arcade faithfully and checked with automated tests, but differences and errors may remain.</span></p><p><span lang="it"><strong>Marchi e diritti di CAPCOM.</strong> <em>Ghosts 'n Goblins</em>, i suoi personaggi, i nomi e il logo sono marchi e opere di CAPCOM CO., LTD. (© CAPCOM CO., LTD. 1985), citati a scopo descrittivo e di omaggio. Personaggi, ambientazioni, musiche ed effetti sonori sono creazioni di CAPCOM: la grafica moderna li reinterpreta, ma restano opere di CAPCOM.</span><span lang="en"><strong>CAPCOM trademarks and rights.</strong> <em>Ghosts 'n Goblins</em>, its characters, names and logo are trademarks and works of CAPCOM CO., LTD. (© CAPCOM CO., LTD. 1985), mentioned for descriptive and tribute purposes. Characters, settings, music and sound effects are CAPCOM's creations: the modern graphics reinterpret them, but they remain CAPCOM's works.</span></p><p><span lang="it"><strong>Nessun diritto rivendicato.</strong> Il curatore non rivendica alcun diritto d'autore su questo tributo.</span><span lang="en"><strong>No rights claimed.</strong> The curator claims no copyright on this tribute.</span></p><p><span lang="it"><strong>Dati.</strong> Il sito non usa cookie né sistemi di tracciamento. Le opzioni del gioco restano salvate solo nel tuo browser.</span><span lang="en"><strong>Data.</strong> The site uses no cookies and no tracking. Game options are saved only in your browser.</span></p><p><span lang="it"><strong>Ringraziamenti.</strong> Fogli di sprite di riferimento da <a href="https://www.spriters-resource.com/">The Spriters Resource</a>, archivio curato dalla comunità.</span><span lang="en"><strong>Thanks.</strong> Reference sprite sheets from <a href="https://www.spriters-resource.com/">The Spriters Resource</a>, a community-run archive.</span></p><p><span lang="it"><strong>Linee guida CAPCOM.</strong> Questo tributo si attiene alle <a href="https://www.capcom-games.com/it-it/fan-content-guidelines/">linee guida di CAPCOM per i contenuti dei fan</a>.</span><span lang="en"><strong>CAPCOM guidelines.</strong> This tribute follows <a href="https://www.capcom-games.com/en-us/fan-content-guidelines/">CAPCOM's fan content guidelines</a>.</span></p><p><span lang="it"><strong>Richieste di rimozione.</strong> Se sei il titolare dei diritti e desideri la rimozione del tributo o di una sua parte, apri una segnalazione su <a href="https://github.com/it-mikesoft/gng/issues">GitHub</a>: il materiale viene rimosso.</span><span lang="en"><strong>Takedown requests.</strong> If you are the rights holder and want this tribute or part of it removed, open an issue on <a href="https://github.com/it-mikesoft/gng/issues">GitHub</a>: the material will be removed.</span></p>
+    <p class="small"><span lang="it">* modello dedotto dalla storia del repository. Aggiornato 10/10/2026 16:46.</span><span lang="en">* model inferred from the repository history. Updated 10/10/2026 16:46.</span></p>
+  </footer>
+</main>
+<script>
+(() => {
+  let lang = null;
+  try { lang = localStorage.getItem("gng_lang"); } catch (_) {}
+  if (lang !== "it" && lang !== "en") lang = (navigator.language || "en").toLowerCase().startsWith("it") ? "it" : "en";
+  const apply = l => { document.documentElement.dataset.lang = l; document.documentElement.lang = l;
+    document.querySelectorAll(".langsw button").forEach(b => b.classList.toggle("on", b.dataset.l === l)); };
+  apply(lang);
+  document.querySelectorAll(".langsw button").forEach(b => b.onclick = () => { apply(b.dataset.l);
+    try { localStorage.setItem("gng_lang", b.dataset.l); } catch (_) {} });
+})();
+(() => {
+  const font = new Image();
+  font.onload = () => document.querySelectorAll("canvas.px").forEach(c => {
+    const t = c.dataset.t, pal = +c.dataset.p, s = +c.dataset.s;
+    c.width = t.length * 8 * s; c.height = 8 * s;
+    const g = c.getContext("2d"); g.imageSmoothingEnabled = false;
+    for (let i = 0; i < t.length; i++) {
+      const code = t.charCodeAt(i); if (code > 127) continue;
+      g.drawImage(font, (code % 16) * 8, (code >> 4) * 8 + pal * 64, 8, 8, i * 8 * s, 0, 8 * s, 8 * s);
+    }
+  });
+  font.src = "home/font.png";
+})();
+</script>
+</body>
+</html>

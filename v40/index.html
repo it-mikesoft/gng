@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+		<title>GNG</title>
+		<style>
+html, body, #canvas {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+body {
+	color: white;
+	background-color: black;
+	overflow: hidden;
+	touch-action: none;
+}
+
+#canvas {
+	display: block;
+}
+
+#canvas:focus {
+	outline: none;
+}
+
+#status, #status-splash, #status-progress {
+	position: absolute;
+	left: 0;
+	right: 0;
+}
+
+#status, #status-splash {
+	top: 0;
+	bottom: 0;
+}
+
+#status {
+	background-color: #242424;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	visibility: hidden;
+}
+
+#status-splash {
+	max-height: 100%;
+	max-width: 100%;
+	margin: auto;
+}
+
+#status-progress, #status-notice {
+	display: none;
+}
+
+#status-progress {
+	bottom: 10%;
+	width: 50%;
+	margin: 0 auto;
+}
+
+#status-notice {
+	background-color: #5b3943;
+	border-radius: 0.5rem;
+	border: 1px solid #9b3943;
+	color: #e0e0e0;
+	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
+	line-height: 1.3;
+	margin: 0 2rem;
+	overflow: hidden;
+	padding: 1rem;
+	text-align: center;
+	z-index: 1;
+}
+		</style>
+		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
+<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
+<style>
+/* The shell stacks #status as a centred flex column but lays the Godot splash out absolutely, over the whole
+   overlay: left alone it sits on top of the logo and the keys. Pin it to a corner so the two live together. */
+#status-splash{position:absolute!important;top:auto!important;bottom:14px!important;left:14px!important;right:auto!important;
+ margin:0!important;max-height:84px!important;max-width:84px!important;opacity:.75}
+#status{overflow-y:auto;padding:24px 0}
+#gngboot{position:relative;margin:16px auto 0;max-width:460px;padding:0 16px;color:#ece9ff;
+ font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}
+#gngboot .logo{display:block;width:min(420px,88vw);height:auto;margin:0 auto 10px;
+ filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
+#gngboot .tribute{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 14px;color:#b3acdf;font-size:13px}
+#gngboot .tribute img{width:76px;height:76px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+#gngboot .tribute b{color:#f2c14e;font-weight:700}
+#gngkeys{padding:13px 16px;background:#0b0a1acc;border:2px solid #3a3270;border-radius:8px;text-align:left}
+#gngkeys b{display:block;margin:0 0 8px;color:#f2c14e;letter-spacing:2px;font-size:12px}
+#gngkeys dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
+#gngkeys dt{color:#f2c14e;white-space:nowrap}
+#gngkeys dd{margin:0;color:#b3acdf}
+#gngkeys dd i{font-style:normal;opacity:.65}
+</style>
+<script>
+// The head runs before the body exists and the shell removes #status as soon as the engine is up, so a
+// DOMContentLoaded handler can arrive too late on a warm cache: poll for the overlay instead and give up quietly.
+var gngTries = 0;
+var gngTimer = setInterval(function () {
+  if (++gngTries > 600) { clearInterval(gngTimer); return; }
+  var s = document.getElementById("status");
+  if (!s) return;
+  clearInterval(gngTimer);
+  if (document.getElementById("gngboot")) return;
+  var rows = [
+    ["\u2190 \u2192  /  A D", "muovi Arthur", "move Arthur"],
+    ["\u2191 \u2193", "scale, abbassati", "ladders, crouch"],
+    ["SPAZIO  /  X", "salta - e INIZIA", "jump - and START"],
+    ["Z  /  C", "lancia l'arma", "throw the weapon"],
+    ["O", "opzioni (tasti, lingua)", "options (keys, language)"],
+    ["G", "grafica: moderna, originale, temi", "graphics: modern, original, themes"],
+    ["M", "musica", "music"],
+    ["P", "pausa", "pause"]
+  ];
+  var box = document.createElement("div");
+  box.id = "gngboot";
+  var avatar = '<img src="boot/avatar.png" alt="" onerror="this.remove()">';
+  box.innerHTML =
+    '<img class="logo" src="boot/logo.webp" alt="Ghosts \'n Goblins" onerror="this.remove()">' +
+    '<p class="tribute">' + avatar + '<span>UN OMAGGIO &middot; FATTO DA <b>MIKESOFT</b><br>' +
+    'A TRIBUTE &middot; MADE BY <b>MIKESOFT</b></span></p>' +
+    '<div id="gngkeys"><b>TASTI / KEYS</b><dl>' + rows.map(function (r) {
+      return "<dt>" + r[0] + "</dt><dd>" + r[1] + " <i>&middot; " + r[2] + "</i></dd>";
+    }).join("") + "</dl></div>";
+  s.appendChild(box);
+}, 10);
+</script>
+
+	</head>
+	<body>
+		<canvas id="canvas">
+			Your browser does not support the canvas tag.
+		</canvas>
+
+		<noscript>
+			Your browser does not support JavaScript.
+		</noscript>
+
+		<div id="status">
+			<img id="status-splash" src="index.png" alt="">
+			<progress id="status-progress"></progress>
+			<div id="status-notice"></div>
+		</div>
+
+		<script src="index.js"></script>
+		<script>
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":71899744,"index.wasm":35376909},"focusCanvas":true,"gdextensionLibs":[]};
+const GODOT_THREADS_ENABLED = false;
+const engine = new Engine(GODOT_CONFIG);
+
+(function () {
+	const statusOverlay = document.getElementById('status');
+	const statusProgress = document.getElementById('status-progress');
+	const statusNotice = document.getElementById('status-notice');
+
+	let initializing = true;
+	let statusMode = '';
+
+	function setStatusMode(mode) {
+		if (statusMode === mode || !initializing) {
+			return;
+		}
+		if (mode === 'hidden') {
+			statusOverlay.remove();
+			initializing = false;
+			return;
+		}
+		statusOverlay.style.visibility = 'visible';
+		statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
+		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
+		statusMode = mode;
+	}
+
+	function setStatusNotice(text) {
+		while (statusNotice.lastChild) {
+			statusNotice.removeChild(statusNotice.lastChild);
+		}
+		const lines = text.split('\n');
+		lines.forEach((line) => {
+			statusNotice.appendChild(document.createTextNode(line));
+			statusNotice.appendChild(document.createElement('br'));
+		});
+	}
+
+	function displayFailureNotice(err) {
+		console.error(err);
+		if (err instanceof Error) {
+			setStatusNotice(err.message);
+		} else if (typeof err === 'string') {
+			setStatusNotice(err);
+		} else {
+			setStatusNotice('An unknown error occured');
+		}
+		setStatusMode('notice');
+		initializing = false;
+	}
+
+	const missing = Engine.getMissingFeatures({
+		threads: GODOT_THREADS_ENABLED,
+	});
+
+	if (missing.length !== 0) {
+		if (GODOT_CONFIG['serviceWorker'] && GODOT_CONFIG['ensureCrossOriginIsolationHeaders'] && 'serviceWorker' in navigator) {
+			// There's a chance that installing the service worker would fix the issue
+			Promise.race([
+				navigator.serviceWorker.getRegistration().then((registration) => {
+					if (registration != null) {
+						return Promise.reject(new Error('Service worker already exists.'));
+					}
+					return registration;
+				}).then(() => engine.installServiceWorker()),
+				// For some reason, `getRegistration()` can stall
+				new Promise((resolve) => {
+					setTimeout(() => resolve(), 2000);
+				}),
+			]).catch((err) => {
+				console.error('Error while registering service worker:', err);
+			}).then(() => {
+				window.location.reload();
+			});
+		} else {
+			// Display the message as usual
+			const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
+			displayFailureNotice(missingMsg + missing.join('\n'));
+		}
+	} else {
+		setStatusMode('progress');
+		engine.startGame({
+			'onProgress': function (current, total) {
+				if (current > 0 && total > 0) {
+					statusProgress.value = current;
+					statusProgress.max = total;
+				} else {
+					statusProgress.removeAttribute('value');
+					statusProgress.removeAttribute('max');
+				}
+			},
+		}).then(() => {
+			setStatusMode('hidden');
+		}, displayFailureNotice);
+	}
+}());
+		</script>
+	</body>
+</html>
+
