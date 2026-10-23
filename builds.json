@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-10-23T20:46:25Z",
+  "versions": {
+    "v0": {
+      "label": "old",
+      "pck_bytes": 6529216,
+      "pck_sha256": "7b52fb2c1d4d57e8a553b157316c98a6c6875ed90a47145d18f0bea947ef9285",
+      "model": "Codex (GPT)",
+      "model_inferred": false,
+      "summary": "Il gioco di partenza",
+      "date_label": "settembre 2025 (circa)"
+    },
+    "v1": {
+      "label": "gameplay-corrected",
+      "pck_bytes": 6756928,
+      "pck_sha256": "5b4e5c741e778f7485de747e89c7f5678a760431faf816e3d6341a3a0f7710de",
+      "model": "Claude Fable 5",
+      "model_inferred": true,
+      "built_at": "2026-07-25",
+      "notes": "prima correzione del gameplay",
+      "summary": "Prima correzione del gameplay"
+    },
+    "v2": {
+      "label": "uhd-ai-backgrounds",
+      "pck_bytes": 76709216,
+      "pck_sha256": "0def18bc9906b757c235b4855b4cd18663d20c5676c2c5cdf53a51b632b0b176",
+      "model": "Claude Fable 5",
+      "model_inferred": true,
+      "built_at": "2026-07-25",
+      "notes": "sfondi UHD generati con OpenAI image generation",
+      "summary": "Sfondi dipinti in alta definizione"
+    },
+    "v47": {
+      "label": "v1.1.0",
+      "version": "1.1.0",
+      "revision": "66b5830",
+      "built_at": "2026-10-20T10:44:48Z",
+      "model": "Claude Sonnet 5.5",
+      "summary": "Packs cached by content fingerprint (map, intro and sprites show after an update), Hellraiser Arthur follows the original, about 60 unreadable or frontal sprite cells regenerated across the themes",
+      "pck_bytes": 82350608,
+      "pck_sha256": "7526f0228f4844c2902c128edfa05a4cec6e7f83c61a84df9f97a00d58ef2217"
+    },
+    "v48": {
+      "label": "v1.1.0",
+      "version": "1.1.0",
+      "revision": "6d10e44",
+      "built_at": "2026-10-22T16:43:27Z",
+      "model": "Claude Sonnet 5.5",
+      "summary": "Arthur di Hellraiser ridisegnato cella per cella dal suo master (40 celle: stessi vestiti, stessa altezza, scheletro e ossa), scelte del proprietario applicate",
+      "pck_bytes": 82350656,
+      "pck_sha256": "087f4f9b2c041e8aac2332fb53cee99290eb38cf1af4eb3ea1436a02ff497f5e"
+    },
+    "v49": {
+      "label": "v1.1.0",
+      "version": "1.1.0",
+      "revision": "e16d15f",
+      "built_at": "2026-10-23T20:46:25Z",
+      "model": "Claude Sonnet 5.5",
+      "summary": "Citylife: i due droni (cavaliere volante e pipistrello piccolo) ridisegnati cella per cella dal loro master, sempre lo stesso drone, senza aloni",
+      "pck_bytes": 82350704,
+      "pck_sha256": "5c47afa939bed9c6a870734d3c9bc4255cc8a683a3f5d6cf3a513ebdcfab752e"
+    }
+  },
+  "latest": "v49",
+  "last_slot": 49
+}
