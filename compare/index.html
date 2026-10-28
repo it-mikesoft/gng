@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Due diligence: game/ (il tuo gioco) contro claude/ (la ricostruzione)</title>
+<meta name="description" content="Confronto logico e tecnico tra due implementazioni di Ghosts 'n Goblins in Godot: codice, architettura, riusabilità, manutenibilità, affidabilità.">
+<style>
+:root{--bg:#14122b;--panel:#1d1940;--line:#3a3270;--text:#ece9ff;--dim:#b3acdf;--gold:#f2c14e;--code:#2a2552}
+@media (prefers-color-scheme:light){:root{--bg:#faf9ff;--panel:#fff;--line:#d6d1ee;--text:#1b1838;--dim:#5b5680;--gold:#8a5a00;--code:#eeeaff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:60rem;margin:0 auto;padding:1.5rem 16px 4rem}
+h1{font-size:1.9rem;line-height:1.2;margin:.4rem 0 1rem}
+h2{font-size:1.35rem;margin:2.4rem 0 .6rem;padding-top:.8rem;border-top:1px solid var(--line)}
+h3{font-size:1.1rem;margin:1.6rem 0 .4rem}
+a{color:var(--gold)}
+p,li{overflow-wrap:anywhere}
+code{background:var(--code);padding:.05em .3em;border-radius:3px;font-size:.88em}
+pre{background:var(--code);padding:.8rem;overflow-x:auto;border-radius:4px}
+pre code{background:none;padding:0}
+.scroll{overflow-x:auto;margin:1rem 0;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{padding:.45rem .65rem;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{background:var(--panel);color:var(--gold);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:.6rem 1rem;margin:1rem 0 1.4rem}
+nav.toc ol{margin:.2rem 0;padding-left:1.3rem}
+.note{background:var(--panel);border-left:4px solid var(--gold);padding:.7rem 1rem;margin:1rem 0;border-radius:0 4px 4px 0;color:var(--dim)}
+.note strong{color:var(--text)}
+footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--dim);font-size:.88rem}
+</style>
+</head>
+<body>
+<main>
+<p><a href="../">&larr; Ghosts 'n Goblins</a> &middot; <a href="../claude/">claude</a></p>
+<h1>Due diligence: <code>game/</code> (il tuo gioco) contro <code>claude/</code> (la ricostruzione)</h1>
+<p class="note"><strong>Chi scrive e per chi.</strong> Questo documento l'ha scritto Claude, un assistente AI, per il proprietario di entrambi i progetti: il «tu» del testo è lui. <strong>Claude ha anche costruito e verificato una delle due implementazioni confrontate (<code>claude/</code>)</strong>: il testo lo dice e i punti in cui questo può falsare il giudizio sono nella sezione 1. I numeri vengono da tre revisori automatici di sola lettura e da uno script di misura uguale per i due lati; quello che è stato ricontrollato a mano è elencato nella stessa sezione. I percorsi di file citati sono quelli del repository del progetto, che non è pubblico.</p>
+<nav class="toc" aria-label="Indice"><strong>Indice</strong><ol><li><a href="#in-breve">In breve</a></li><li><a href="#1-come-e-stato-fatto-e-che-cosa-non-vale">1. Come è stato fatto, e che cosa non vale</a></li><li><a href="#2-i-due-oggetti">2. I due oggetti</a></li><li><a href="#3-il-diff-logico">3. Il diff logico</a></li><li><a href="#4-il-diff-tecnico-dimensione-per-dimensione">4. Il diff tecnico, dimensione per dimensione</a></li><li><a href="#5-custodia-e-proprieta-dei-materiali">5. Custodia e proprietà dei materiali</a></li><li><a href="#6-i-cinque-rischi-maggiori-di-ciascuno">6. I cinque rischi maggiori di ciascuno</a></li><li><a href="#7-che-cosa-conviene-prendere-da-chi">7. Che cosa conviene prendere da chi</a></li><li><a href="#8-raccomandazione-e-decisioni-tue">8. Raccomandazione e decisioni tue</a></li><li><a href="#9-correzioni-a-documenti-miei-precedenti">9. Correzioni a documenti miei precedenti</a></li></ol></nav>
+<p>Richiesta tua, 2026-10-28: un confronto logico e tecnico tra le due implementazioni, su codice, architettura, riusabilità,
+manutenibilità, affidabilità. Qui sotto c'è il confronto, i rapporti grezzi dei tre revisori sono in
+<code>analysis/gng/due_diligence/</code> (<code>SHEET_A_GAME.md</code>, <code>SHEET_B_CLAUDE.md</code>, <code>LOGICAL_DIFF.md</code>, in inglese, con file e riga per ogni
+affermazione). Chiamo <strong>A</strong> il tuo gioco (<code>game/</code>, con <code>tools/</code>, <code>modernizzazione/</code>, <code>docs/</code>) e <strong>B</strong> la ricostruzione
+(<code>claude/</code>).</p>
+<h2 id="in-breve">In breve</h2>
+<ul>
+<li><strong>Non sono in concorrenza: sono due oggetti diversi.</strong> A è un <strong>prodotto</strong>: sette stage, front end, attrazione, temi, set musicali, touch, impostazioni salvate, un percorso di pubblicazione con controlli di peso. B è un <strong>riferimento di fedeltà</strong>: uno stage solo, tastiera sola, ma una simulazione della CPU della ROM provata a ogni fotogramma contro MAME (30.391 fotogrammi in cinque corse intere, più 47.458 della fase 6) e un banco di prova ripetibile.</li>
+<li><strong>Dove B è avanti:</strong> nell'affidabilità dello stage 1 (A ha 15 divergenze dalla ROM, misurate o lette dal codice, sul gameplay e sull'arte originale, tutte ancora presenti; B non ne ha di note sullo stage 1 fuori dalle eccezioni che dichiara) e nella disciplina dei test (SKIP mai PASS, errori che nominano la scheda, 6 mutazioni su 6 prese; in A una su quattro è sopravvissuta).</li>
+<li><strong>Dove A è avanti:</strong> in tutto ciò che è prodotto (22 funzioni su 27 presenti, contro 11 di B), nella leggibilità per chi conosce Godot, nella documentazione decisionale (43 ADR, skill) e nella possibilità di costruire gli stage 2-7 con lo stesso meccanismo a dati.</li>
+<li><strong>Pari:</strong> codice (3 e 3), architettura (3 e 3), riusabilità (3 e 3, in direzioni opposte). <strong>Manutenibilità:</strong> B un po' avanti (3 contro 2) per chi cambia un nemico con l'oracolo acceso, ma i revisori non sono d'accordo (vedi §4.4). <strong>Affidabilità:</strong> B 4, A 3.</li>
+<li><strong>La cosa più utile che il confronto ha trovato:</strong> B può fare da <strong>oracolo per lo stage 1 di A</strong>. Il giro dei punti già trovati è in §3.2: i più pesanti sono il tempo e il grado che corrono durante la pausa, il continue che azzera arma, difficoltà e checkpoint (A li azzera, la ROM no), la velocità dello zombie che ignora il grado, e <strong>i fogli dei tasselli dell'arte originale con l'ordine dei bit del colore inverso a quello di MAME</strong> (verificato da me su 262.144 pixel: coincidono nel 63,0 %, nel 100,0 % se si invertono i bit; se e quanto si veda sullo schermo dipende dalla palette: la tua misura di DELTA dava l'81,9 % di pixel uguali all'avvio dello stage 1).</li>
+<li><strong>I rischi più grossi sono di custodia, non di codice:</strong> il ramo di B è stato pushato su origin solo dopo questo confronto (2026-10-28) e la sua prova ha bisogno di 5,1 GB di catture che restano solo locali; la base di A (thema, voti, audio) vive in 12 GB locali e la suite di A è rossa su una copia con solo i file tracciati; <strong>entrambe le pagine pubblicate portano materiale derivato dalla ROM</strong> (A: grafica e audio originali nel <code>.pck</code>; B: l'immagine del programma, la grafica decodificata e 24,9 MB di audio).</li>
+</ul>
+<h2 id="1-come-e-stato-fatto-e-che-cosa-non-vale">1. Come è stato fatto, e che cosa non vale</h2>
+<p>Tre agenti (opus) di sola lettura, ciascuno con un compito scritto: la scheda di A, la scheda di B (stessa struttura, punteggi da
+1 a 5 con ancore assolute), il confronto logico. Hanno letto entrambi gli alberi, contato, eseguito test e prove di mutazione su
+copie, e ognuno ha lasciato <code>git status</code> uguale a prima. Le misure del codice (righe, funzioni, letterali) vengono da un unico
+script (<code>analysis/gng/due_diligence/metrics.py</code>, con i quattro JSON di uscita accanto), le stesse regole per i due lati; le sue espressioni regolari sono grezze e i revisori lo
+dicono dove ingannano.</p>
+<p><strong>Limiti che devi tenere presenti.</strong>
+1. <strong>Conflitto di interessi.</strong> B l'ho costruita e verificata io (lo stesso assistente che scrive questo documento), e i revisori
+   sono della stessa famiglia di modelli. Ho detto loro di non fidarsi dei rapporti di B e di rifare i numeri; hanno trovato
+   difetti in B (§4, §6). Ma resta un punto cieco possibile che io non vedo.
+2. <strong>Il confronto non è alla pari.</strong> B copre uno stage su sette e ha una prova che A non ha per nessuno stage; A ha un prodotto
+   che B non ha. Per questo nessuna riga dice «vince X» senza dire in che senso.
+3. <strong>I punteggi sono giudizi ordinali di un revisore, non misure.</strong> Due revisori su manutenibilità hanno dato risultati
+   diversi (§4.4): l'ho scritto.
+4. <strong>Che cosa ho verificato io, a parte i revisori:</strong> la differenza del bit-order nei tasselli dell'arte originale (script del
+   revisore, rifatto: 63,0 % / 100,0 %); il tempo e il grado di A che corrono in <code>_process(delta)</code> con <code>PROCESS_MODE_ALWAYS</code>;
+   la velocità dello zombie letta da un valore fisso e non dal grado; la dimensione delle catture di B (5,1 GB); i 31 commit di
+   B e il fatto che, al momento del confronto, il ramo non era su origin (è stato pushato dopo). Il resto (le 15 divergenze una per una, i conteggi, le mutazioni, le misure di
+   prestazione) è dei revisori, con il file e la riga nei rapporti grezzi.
+5. <strong>Non verificato da nessuno:</strong> le prestazioni sul web reale e su un telefono (solo un Chrome senza testa, per B), il suono
+   ascoltato, la grafica ad occhio, le copie di sicurezza di <code>local/</code>, se il ramo <code>gh-pages</code> è pubblico.</p>
+<h2 id="2-i-due-oggetti">2. I due oggetti</h2>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>A <code>game/</code></th>
+<th>B <code>claude/</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Che cos'è</td>
+<td>porting in Godot con nodi, JSON e fisica; stage 1-7, front end, temi</td>
+<td>trascrizione in GDScript del programma 6809 per lo stage 1, su uno specchio della RAM; compositore e modello della scheda audio</td>
+</tr>
+<tr>
+<td>Copertura</td>
+<td>7 stage, boss e finale a due giri</td>
+<td>stage 1, fino al primo fotogramma di gioco dello stage 2</td>
+</tr>
+<tr>
+<td>GDScript</td>
+<td>87 file, 24.108 righe (18.334 di codice)</td>
+<td>55 file, 16.792 righe (12.676 di codice)</td>
+</tr>
+<tr>
+<td>Test Godot</td>
+<td>65 suite, 18.166 righe, ~3.550 verifiche</td>
+<td>56 suite (55 Godot più Python), 21.375 righe, 1.276 <code>t.check</code></td>
+</tr>
+<tr>
+<td>Strumenti Python</td>
+<td>125 file, 37.896 righe (606 test)</td>
+<td>37 file, 11.498 righe di codice (242 test)</td>
+</tr>
+<tr>
+<td>Dati tracciati</td>
+<td>45 JSON (884 KB); asset tracciati 163 MB</td>
+<td>6 JSON (387 KB), 96 scenari MAME; nessun asset</td>
+</tr>
+<tr>
+<td>Documenti</td>
+<td>121 <code>.md</code> (24.562 righe), 43 ADR, 9 skill, 4 agenti</td>
+<td>96 <code>.md</code> (27.634 righe)</td>
+</tr>
+<tr>
+<td>In locale e non in git</td>
+<td>~12 GB (temi 733 MB, voti, disassembly, audio e grafica originali)</td>
+<td>catture 5,1 GB, pacchetti dati e audio, ROM</td>
+</tr>
+<tr>
+<td>Storia</td>
+<td>440 commit dal 2026-04-23, un autore, 434 con un co-autore Claude</td>
+<td>31 commit in tre giorni; ramo su origin dal 2026-10-28 (dopo il confronto)</td>
+</tr>
+<tr>
+<td>Pubblicato</td>
+<td>sì (<code>/gng/vNN/</code>), base <code>.pck</code> 82,4 MB più <code>.wasm</code> 35,4 MB, temi 59 MB</td>
+<td><code>/claude/</code>, <code>.pck</code> 1,2 MB, <code>.wasm</code> 35,4 MB, audio 24,9 MB</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="3-il-diff-logico">3. Il diff logico</h2>
+<h3 id="31-che-cosa-fa-ciascuno-27-funzioni">3.1 Che cosa fa ciascuno (27 funzioni)</h3>
+<p>A: 22 presenti, 2 parziali (gamepad solo nei menu; DIP), 3 assenti (modalità di prova, preset desktop, due giocatori). B: 11
+presenti, 6 parziali, 10 assenti. B è avanti su una sola riga (due giocatori, che nella pagina non si raggiunge). B manca di:
+stage 2-7 e i loro nemici e boss, attrazione e titolo, opzioni e dio-modalità, temi e arte alternativa, set musicali, touch,
+impostazioni salvate, tabella dei record. I nomi dei nemici non coincidono tra i due alberi (il «Woody Pig» di B è il <code>owl</code> di
+A, il «diavoletto» di B è il <code>flock_knight</code> di A): si mappa per numero di tipo.</p>
+<h3 id="32-dove-i-due-si-comportano-diversamente-stage-1">3.2 Dove i due si comportano diversamente (stage 1)</h3>
+<p>Quindici divergenze, ordinate per effetto sul giocatore, tutte ancora presenti in A (<code>game/</code> non cambia dal commit <code>ea27d06</code>,
+quindi nulla può essere «già corretto»). Le prime dieci:</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Che cosa</th>
+<th>ROM / MAME (B)</th>
+<th>A oggi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Arte originale: i fogli dei tasselli hanno i bit del colore in ordine inverso</strong></td>
+<td>tasselli MSB-first (scheda graphics RULE-003)</td>
+<td><code>extract_mame_gng.py:79</code>; il foglio di A uguale a quello di B con i bit invertiti su 262.144 pixel su 262.144, uguale al primo solo nel 63,0 % <em>(verificato da me)</em></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Il livello di priorità usa gli stessi colori</td>
+<td>RULE-012</td>
+<td><code>build_original_art.py:893</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Tempo e grado corrono durante la pausa</strong></td>
+<td>la ROM non ha pausa; il contratto di A (<code>pause_control.gd:5</code>) dice che si fermano</td>
+<td><code>game_manager.gd:42,51-57</code>; prova: 6 s di pausa, tempo 120→115, grado 1536→1643</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Il continue azzera arma, difficoltà e checkpoint</strong></td>
+<td><code>$6C33</code> azzera solo vite, punteggio e bonus</td>
+<td><code>title_screen.gd:756</code> → <code>game_manager.gd:346-352</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>La velocità dello zombie ignora il grado</strong></td>
+<td>0,8125 / 1,0625 / 1,1875 / 1,5 px/f (RULE-017)</td>
+<td>fissa a 0,8125 (<code>zombie.gd:50,69</code>), il grado 1 arriva dopo circa 6.100 fotogrammi di una vita Normal, subito nel secondo giro <em>(letto da me)</em></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Red Arremer: rilettura del byte <code>00</code></td>
+<td>secondo lancio +14 f, poi ~2.040 f senza picchiata a tempo</td>
+<td><code>red_arremer.gd:147-170,737</code> ripete modulo la riga</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Jingle dell'ultima vita</td>
+<td><code>2F</code> al colpo, GAME OVER muto</td>
+<td><code>player.gd:1005,1029</code>, <code>stage_level.gd:1680</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>I punti nascosti pagano una volta a partita, non a vita</td>
+<td><code>$6E6E</code> per vita</td>
+<td><code>pickup_spot.gd:26,75</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td>Su prima di una scala non la afferra</td>
+<td>RULE-016 (parte sintetica)</td>
+<td><code>player.gd:809-833</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td>Ritardo del rialzarsi 15/10/7</td>
+<td>RULE-014</td>
+<td><code>player.gd:835-842</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Altre cinque (il flag di accovacciato dopo un salto, l'arma tenuta che decide la perforazione, la porta che non si apre, il
+passaggio allo stage 2 39 fotogrammi in anticipo e la chiave 3 fotogrammi in anticipo, la lapide dietro Arthur) sono nel
+rapporto grezzo. <strong>Dieci righe «X» di B campionate a caso contro il codice di A: 4 uguali, 6 diverse, tutte piccole</strong>
+(il primo tick del timer fuori griglia, il grado con un accumulatore, i 2000 punti dell'Unicorno che possono dare una vita
+extra sullo schermo del boss, l'invulnerabilità a 121 tick invece di 120, il pugnale a 53 invece di 52 o 53, i generatori
+azzerati a ogni cambio di schermo).</p>
+<p><strong>Un punto che la mia analisi precedente (DELTA.md) sbagliava e che conta:</strong> DELTA diceva che il tuo porting non si chiede
+quale banco di ROM è mappato; il file <code>stage1_spawn.json:277</code> documenta invece la lettura del banco 2 e la pausa di 256
+fotogrammi. A l'ha applicata allo stage 1; <strong>gli stage 2-7 usano ancora le tabelle del banco 4 (10-240 fotogrammi)</strong>, mentre
+l'unica corsa MAME dello stage 2 del delta dà 256. È il rischio non misurato più grande di A, e B non lo copre perché si
+ferma allo stage 2. Inoltre i conteggi di classe di DELTA (197/54/25/32) non si riproducono (203/60/30/37 etichettando di
+nuovo le righe), mentre il totale dei candidati (56) sì.</p>
+<h3 id="33-dove-sono-uguali-per-costruzione-e-dove-no">3.3 Dove sono uguali per costruzione, e dove no</h3>
+<p>Uguali: i file ROM, MAME 0.264, il disassembly (<strong>il listato «cieco» di B è il tuo <code>docs/rom_disasm</code> ripulito dai nomi</strong>: la
+divisione fra codice e dati è la tua) e le tabelle statiche (velocità a grado 0, scatole, punteggi, timer iniziale, soglie).
+Indipendente: tutto il flusso di controllo (B trascrive le routine con il nome dell'indirizzo; A le riscrive con nodi e secondi
+in virgola mobile). <strong>A diverge dove un valore si legge nel contesto e non da una tabella:</strong> un terminatore riletto, un byte di
+slot rimasto, il banco mappato al momento della lettura, il grado a tempo di esecuzione, l'arma tenuta al momento del colpo. La
+normalizzazione in JSON cancella quel contesto; B lo eredita gratis. <strong>Dove potrebbero sbagliare insieme:</strong> l'accuratezza di MAME
+(compreso il suono YM2203), il clock a 60 Hz della pagina (l'arcade è a 59,64 Hz), le affermazioni solo statiche (la stessa
+lista), la revisione della ROM (solo la <code>gng</code> genitore).</p>
+<h2 id="4-il-diff-tecnico-dimensione-per-dimensione">4. Il diff tecnico, dimensione per dimensione</h2>
+<p>Punteggi dei revisori, da 1 (inadatto) a 5 (esemplare per un progetto così). Per le dimensioni che mi hai chiesto: codice e
+architettura sono sezioni delle schede; <strong>riusabilità la ho aggiunta io</strong> leggendo la sezione 5 di entrambe; manutenibilità e
+affidabilità sono sezioni delle schede.</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th>Dimensione</th>
+<th>A</th>
+<th>B</th>
+<th>Chi è avanti</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codice</td>
+<td>3</td>
+<td>3</td>
+<td>pari</td>
+</tr>
+<tr>
+<td>Architettura</td>
+<td>3</td>
+<td>3</td>
+<td>pari, in sensi diversi</td>
+</tr>
+<tr>
+<td>Riusabilità</td>
+<td>3</td>
+<td>3</td>
+<td>pari, in direzioni opposte (mio giudizio)</td>
+</tr>
+<tr>
+<td>Manutenibilità</td>
+<td>2</td>
+<td>3</td>
+<td>B poco; i revisori dissentono</td>
+</tr>
+<tr>
+<td>Affidabilità</td>
+<td>3</td>
+<td>4</td>
+<td>B, <strong>solo sullo stage 1</strong></td>
+</tr>
+<tr>
+<td>(Prove ed evidenza)</td>
+<td>3</td>
+<td>4</td>
+<td>B</td>
+</tr>
+<tr>
+<td>(Identità: copertura e portabilità)</td>
+<td>3</td>
+<td>2</td>
+<td>A</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="41-codice-a-3-b-3">4.1 Codice (A 3, B 3)</h3>
+<ul>
+<li><strong>A:</strong> 1.788 funzioni su 1.789 con tipo di ritorno, nessuna funzione oltre 75 righe, commenti densi e ancorati alla ROM. Ma
+  circa <strong>2.180 letterali numerici in linea</strong> nei file di gioco (330 sono ripieghi dei JSON, il 21 % delle righe con un numero
+  cita un indirizzo ROM o MAME), un test di contatto della ROM (<code>0xF530</code>) <strong>riscritto in sei file</strong> (e solo l'Ogre lo cancella
+  sui fotogrammi dispari: è la radice di un'incongruenza già trovata da una verifica precedente), due modelli dello spawner per
+  la stessa routine, codice morto (AiDirector disattivato, <code>demon_knight</code> mai generato, i ripieghi int33h), 84 MB di copie
+  <code>assets_backup_*</code> e 6,8 GB di <code>.claude/worktrees</code> obsoleti sul disco. Tre commenti controllati: tre falsi. Errori ai confini:
+  un JSON mancante dà uno stage vuoto in silenzio, l'audio mancante è un no-op muto.</li>
+<li><strong>B:</strong> 905 funzioni su 907 con tipo, mediana 8 righe, nessun TODO, nessun codice commentato. Ma sono una <strong>trascrizione</strong>: 1.418
+  accessi alla RAM con scostamenti grezzi (<code>x ± 0xNN</code>), 71 nomi di RAM dichiarati in più file (<code>G_FRAME_LO</code> in 20) e uno stesso
+  nome per due byte diversi (<code>G_MUSIC_LEVEL</code> 0xBD contro 0xBC: sono i due byte della stessa parola, ma è una trappola), tre
+  piloti di test che condividono metà delle righe, e <strong>un difetto reale mio</strong>: con il pacchetto dati mancante <code>func _draw()</code>
+  (<code>game.gd:375</code>) nasconde <code>CanvasItem._draw</code>, il motore la chiama senza presentatore e dà <code>SCRIPT ERROR ... 'render' in base
+  'Nil'</code>; il lanciatore dei test non lo vede perché lo cerca solo nei log delle suite. Un commento che dice «niente di derivato
+  dalla ROM è scritto nel codice» è smentito da <code>WALK_TIMER := 0xB4</code>.</li>
+</ul>
+<h3 id="42-architettura-a-3-b-3">4.2 Architettura (A 3, B 3)</h3>
+<ul>
+<li><strong>A:</strong> scena principale = macchina a stati del titolo → una scena di livello per tutti gli stage; nodi Godot, cinque autoload
+  con stato mutabile (GameManager è citato da 39 file), dati per stage in JSON, lettura delle tabelle ROM decodificate una
+  volta. <strong>Tempi misti:</strong> la fisica a 60 Hz, ma il timer di livello e gli stage 2-7 corrono in <code>_process</code> con <code>delta</code> in
+  secondi (19 accumulatori in virgola mobile); <strong>il caso casuale è il <code>randomize()</code> di Godot in ogni nemico, non il registro
+  a scorrimento della ROM</strong> (che è documentato). <code>stage_level.gd</code> (1.913 righe, 121 funzioni) è un oggetto-dio. Punti di
+  estensione buoni: <code>ArtMode.resolve</code>, i contratti JSON degli stage, <code>RomHit</code>, <code>RomClock</code>, <code>ScriptedInput</code>.</li>
+<li><strong>B:</strong> un unico specchio della RAM di 8 KB (<code>SimState.ram</code>) scritto da 27 moduli per riferimento; senza autoload né globali;
+  presentatore e compositore separati dalla simulazione; la simulazione gira senza testa. Interi e il PRNG della ROM; due parti
+  dichiarate non ROM (un modello dei tempi tarato, <code>IRQ_COST := 0.175</code>, e il clock a 60,0 Hz). Ma i moduli si collegano per
+  iniezione dopo la costruzione, uno chiama funzioni private di un altro (<code>SimStageEnd</code> su <code>_stage_timer_ED2A</code>), i rami di
+  riproduzione della traccia stanno dentro il nucleo dei nemici, e la proprietà dei byte è solo una lista di intervalli
+  controllata da un test, non dal codice. Il disegno giusto per provare, ma <strong>è un emulatore, non un motore</strong> su cui costruire
+  altro.</li>
+</ul>
+<h3 id="43-riusabilita-a-3-b-3-mio-giudizio">4.3 Riusabilità (A 3, B 3, mio giudizio)</h3>
+<ul>
+<li><strong>Di A si riusa lo strato di prodotto:</strong> <code>ArtMode</code> e i pacchetti dei temi (richiedono il layout <code>assets/themes/&lt;id&gt;</code>), il
+  contenitore di input con script, i controlli touch, i set musicali, <code>RomHit</code> e <code>RomClock</code>. <strong>Non si riusano</strong> i nemici e
+  <code>stage_level</code>, legati a GameManager, all'albero dei nodi e agli indirizzi ROM.</li>
+<li><strong>Di B si riusa lo strumento di prova:</strong> l'oracolo MAME (<code>trace_oracle.py</code>, lo script Lua, <code>gng_trace.py</code>, <code>trace_diff.py</code>) con
+  una mappa di indirizzi; la simulazione come riferimento senza testa per i test differenziali di A (<code>start_new_game</code>,
+  <code>tick(mask)</code>, <code>snapshot()</code>, <code>state.ram</code>); <code>check_no_rom.py</code>. <strong>Non si riusano</strong> le trascrizioni delle routine: sono del layout
+  RAM di questo gioco.</li>
+<li><strong>Tra i due:</strong> il byte degli ingressi dell'oracolo usa gli stessi bit del <code>scripted_input.gd</code> di A; quindi il pilota di demo di
+  A può rigiocare un flusso MAME o della simulazione. Stima del revisore: <strong>5-8 giorni</strong> per un esportatore nei test di A che
+  confronti Arthur, punteggio, timer e zombie (più circa un giorno per ogni altro tipo di nemico); solo locale, nessun cambio
+  al gameplay. Il percorso inverso (lo strato di A sopra il presentatore di B) è <strong>12-18 giorni</strong> per il solo stage 1: serve un
+  presentatore a nodi che legga gli slot, la mappa (tipo, animazione, indice) → cella (l'inverso esiste già in
+  <code>build_original_art.py</code>), i fondali, il testo dalla RAM, il ponte con l'audio e con il front end.</li>
+</ul>
+<h3 id="44-manutenibilita-a-2-b-3-i-revisori-dissentono">4.4 Manutenibilità (A 2, B 3; i revisori dissentono)</h3>
+<ul>
+<li><strong>A:</strong> documentazione abbondante che <strong>invecchia</strong>: tre affermazioni controllate, tre false (nessun numero di gameplay nel
+  codice, «cornacchia/pianta/Arremer/Unicorno restano int33h», «il codice gestisce Esc/Y, non O»; «39 ADR» sono 43, «61 suite»
+  sono 65, «un solo index.pck» ma ci sono i pacchetti dei temi). <strong>La matrice di fedeltà di A (74 righe: 48 corrispondono, 18 no)
+  è vecchia</strong>: righe dell'Audit 1 elencano problemi che il codice ha poi risolto, e il controllore verifica la forma e non il
+  vero. Cambiare un nemico: <strong>circa 15 file</strong> più la pipeline delle immagini (script e scena, profilo di collisione, mappa dello
+  spawner, sprite, foglio dipinto, ricostruzione dell'arte originale che richiede la ROM, audio, sei temi o scendono sotto la
+  soglia del 75 %, una suite <strong>più la modifica a mano dell'elenco del lanciatore</strong>, una riga di matrice, una specifica, la
+  copertura delle routine, il ricalcolo della console). <strong>Aggiungere lo stage 8 non esiste</strong>; lo stage 7 è la stanza di
+  Astaroth con <code>next: 0</code>. Per aggiungerne uno servono voce in <code>stages.json</code>, quattro JSON da <code>export_stage_data.py</code> (serve la
+  decodifica locale), pannelli, e poiché <code>theme_rules.json</code> ha <code>backgrounds_min: 1.0</code> <strong>tutti e sei i temi escono dal gioco
+  finché non hanno i fondali del nuovo stage</strong>. Dipendenze di processo: i router GPU sulla tua rete (27 file di strumenti),
+  la console dei voti in <code>local/</code>, le skill e il congelamento (ogni correzione richiede la tua approvazione scritta), percorsi
+  assoluti della tua macchina scritti negli strumenti, <code>local_assets.sh</code> che prende il magazzino da <code>git worktree list</code>; la storia delle build pubblicate sta solo
+  nella cartella locale <code>site/public</code>. Fattore di bus: te più la pipeline di agenti.</li>
+<li><strong>B:</strong> documenti veri sui numeri controllati (56 suite, matrice 316/10/6/2, <code>game/</code> intatto) ma 27k righe, i principali in
+  italiano. Cambiare il movimento di un nemico: la sua routine <code>sim_&lt;nemico&gt;.gd</code> e <strong>l'oracolo indica fotogramma e byte che
+  differiscono</strong>; un nemico nuovo, 8-10 file e una cattura MAME. <strong>Lo stage 2:</strong> i dati ci sono già, mancano i gestori dei
+  nemici (segnaposto oggi) e del boss, la proprietà dei byte, il congelamento della pagina, forse un nuovo calcolo del modello
+  dei tempi, <strong>nuove schede regola (le 337 sono tutte dello stage 1) e nuove corse MAME</strong>; Arthur, armi, flusso, testo, camera,
+  suono e compositore si portano senza cambiare. Dipende da ROM, listato ripulito, MAME, oracolo Lua e 5,1 GB di catture;
+  nessun umano l'ha scritta (circa 28 M di token di agenti), e al momento del confronto <strong>c'era una sola copia, non su origin</strong> (poi pushata; restano locali le catture).</li>
+<li><strong>Perché i revisori dissentono.</strong> Il revisore del confronto logico dà A «un po' avanti» perché ha 44 ADR, skill e uno schema
+  congelato; il revisore della scheda di A gli dà 2 per il costo di cambiare e la deriva dei documenti. Io tengo 2 contro 3
+  guardando una sola cosa: chi cambia B ha un oracolo che dice subito se ha rotto qualcosa, chi cambia A ha 65 suite verdi che
+  convivono con 15 divergenze note. Ma B è più costosa da <strong>estendere</strong> e si legge solo con il listato locale accanto.</li>
+</ul>
+<h3 id="45-affidabilita-a-3-b-4">4.5 Affidabilità (A 3, B 4)</h3>
+<ul>
+<li><strong>Che cosa dimostrano.</strong> A: salti fotogramma per fotogramma, la zattera su 1.129 fotogrammi entro 0,02 px, ripetizioni brevi
+  dei gestori (cornacchia, pianta, Arremer, Unicorno, cavalieri, scheletro, Ogre) e i tick dello spawner dello stage 1;
+  <strong>nessun confronto di una corsa intera con MAME</strong>, nessun caso casuale ROM, l'audio non è provato. B: la simulazione viva
+  uguale a MAME su 30.391 fotogrammi (11 confronti per fotogramma) e su altri 47.458; 384 milioni di pixel a 0 differenze
+  (56.498 esclusi, tutti dichiarati); suono 605 secondi forti su 606 entro 3 dB. <strong>Limiti dichiarati di B:</strong> l'invulnerabilità
+  (<code>$AD</code>) dal fotogramma 1157 al 5872 in ogni corsa (i colpi su Arthur sono provati da altre dodici corse), il modello dei tempi
+  tarato e non derivato, lo stage 2 a segnaposto, il suono mai ascoltato.</li>
+<li><strong>Prove, con numeri.</strong> A: <strong>65 su 65 verdi in 334 s</strong> su una copia della tua cartella (tre suite ripetute tre volte, nessuna
+  instabile); 4 mutazioni, 3 prese, <strong>1 sopravvissuta</strong> (togliere il vincolo dei fotogrammi dispari dei proiettili dell'Ogre non
+  rompe nessuna delle tre suite che lo toccano), e un ritardo di un fotogramma negli spawner degli stage 2-7 lo prende solo la
+  suite dello stage 2 (quelle degli stage 3-7 passano); su una copia con soli i file tracciati <code>art_themes_test</code> fallisce e i test degli strumenti danno 12 errori. B: <strong>56 su 56
+  in 21 min 44 s</strong>, 6 mutazioni su 6 prese, tre suite ripetute tre volte; su una copia pulita 54 suite su 55 danno SKIP (mai
+  PASS, come deve), ma <strong>il lanciatore esce con 0 sullo SKIP</strong>, quindi una macchina senza le catture pubblicherebbe senza prova.
+  Nessuno dei due ha CI.</li>
+<li><strong>Difetti trovati.</strong> A: lo zombie risorge in 89 fotogrammi e non 88; la scossa della camera (<code>player.gd:289-293</code>) non è
+  marcata <em>non ROM</em> e sposta la vista usata per la rimozione degli oggetti; nessuna pausa alla perdita del fuoco né al tocco.
+  B: il difetto di <code>_draw</code> (sopra); la pagina pubblicata è la revisione <code>a2bd95a</code>, mentre la testa <code>492fc1d</code> (un avviso di
+  console in meno) non è pubblicata.</li>
+<li><strong>Prestazioni.</strong> A: 0,36-0,86 ms a fotogramma (senza testa, stage 1/3/5/7), prima apertura 117,7 MB, il <code>.pck</code> base al 91,5 %
+  del limite di 90 MB; web non misurato. B: un tick 0,37 ms (p99 0,70), disegno 1,52 ms, 60.000 fotogrammi con 13 riavvii a costo
+  piatto e memoria da 28,2 a 29,1 MB; in un Chrome senza GPU 15-19 fotogrammi al secondo a tela piena, con il suono al 36-83 %
+  del tempo. <strong>Nessun telefono, nessun browser reale, per nessuno dei due.</strong></li>
+</ul>
+<h2 id="5-custodia-e-proprieta-dei-materiali">5. Custodia e proprietà dei materiali</h2>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th></th>
+<th>A</th>
+<th>B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Che cosa è solo in locale</td>
+<td><code>local/</code> (voti, console), 733 MB di temi, audio e arte originali, disassembly; 12 GB in tutto</td>
+<td>ROM, catture 5,1 GB, pacchetti dati e audio, fixture</td>
+</tr>
+<tr>
+<td>Che cosa succede su una copia con i soli file tracciati</td>
+<td><code>art_themes_test</code> fallisce, 12 errori nei test degli strumenti: <strong>il controllo è verde solo da te</strong></td>
+<td>54 suite su 55 danno SKIP: non provato ma non finto</td>
+</tr>
+<tr>
+<td>Ramo/copia</td>
+<td>su origin</td>
+<td>su origin dal 2026-10-28 (al momento del confronto, no); le catture e i pacchetti restano solo locali</td>
+</tr>
+<tr>
+<td>Che cosa finisce sul sito pubblico</td>
+<td>nel <code>.pck</code> base: <code>assets/original</code> (250 voci), <code>assets/audio/rom</code> (58), audio e fondali int33h; <code>deploy_web.sh</code> li spinge sul ramo <code>gh-pages</code></td>
+<td>l'immagine del programma della CPU (40.960 byte), la grafica decodificata, 24,9 MB di audio di MAME</td>
+</tr>
+</tbody>
+</table></div>
+<p>La regola del repository dice che il materiale ROM sta fuori da git; <strong>entrambi i percorsi di pubblicazione lo mettono in un ramo
+git (<code>gh-pages</code>)</strong>. Per A è una scelta già scritta («l'audio arcade resta nel gioco finché non viene rimasterizzato») e per B
+l'hai accettata chiedendo la pubblicazione, ma restano un'esposizione e una decisione tua. Il revisore di A indica la
+mitigazione più economica: escludere <code>assets/original</code>, <code>audio/rom</code> e int33h dal preset web.</p>
+<h2 id="6-i-cinque-rischi-maggiori-di-ciascuno">6. I cinque rischi maggiori di ciascuno</h2>
+<p><strong>A.</strong> (1) Materiale ROM e int33h pubblicato. (2) Non riproducibile fuori dal tuo disco; suite rossa su copia pulita. (3) Le
+affermazioni di fedeltà vanno oltre la prova: caso casuale di Godot, spawner a tempo di disegno negli stage 2-7, timer in virgola
+mobile, matrice vecchia. (4) Regole ROM duplicate e oggetto-dio. (5) Dipendenza dal tuo processo e dalla tua macchina (GPU di
+rete, skill, congelamento).
+<strong>B.</strong> (1) Perdita: il ramo era solo locale al momento del confronto (ora pushato) e la prova richiede 5,1 GB di catture che restano solo locali. (2) Esposizione di proprietà intellettuale
+(immagine della CPU e audio). (3) Ambito: uno stage su sette, lo stage 2 è una campagna nuova. (4) Leggibilità: scostamenti grezzi
+e una mappa RAM sparsa su molti file. (5) Presentazione non verificata: solo tastiera, 15-19 fotogrammi senza GPU, suono mai
+ascoltato, pagina indietro rispetto alla testa, il difetto di <code>_draw</code>.</p>
+<p><strong>Punti di forza.</strong> A: provenienza ROM ovunque e un registro onesto delle discrepanze; prove derivate da MAME che hanno preso 3
+mutazioni su 4; stage guidati dai dati (7 stage da decodificatori, 6 rami fissi per numero di stage); tipizzazione rigorosa e
+funzioni corte; un prodotto finito con pubblicazioni versionate e controlli di peso. B: fedeltà provata contro un oracolo
+ripetibile; disciplina dei test (SKIP non è PASS, errori che nominano la scheda, mutazioni prese, corse deterministiche);
+tracciabilità (ogni funzione porta il suo indirizzo ROM, la matrice è controllata da una macchina, le eccezioni sono elencate
+per fotogramma); nucleo tipizzato e deterministico senza globali (~2 ms a fotogramma); strumenti dell'oracolo riusabili.</p>
+<h2 id="7-che-cosa-conviene-prendere-da-chi">7. Che cosa conviene prendere da chi</h2>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th>Da → a</th>
+<th>Che cosa</th>
+<th>Vantaggio / costo</th>
+<th>Primo passo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B → A</td>
+<td><strong>Correggere l'ordine dei bit dei tasselli</strong></td>
+<td>avvicina l'arte ORIGINALE a MAME (da controllare a occhio con la palette); meno di 1 giorno, solo strumenti</td>
+<td>invertire i piani in <code>tools/extract_mame_gng.py:79</code> e rifare il controllo di pixel</td>
+</tr>
+<tr>
+<td>B → A</td>
+<td>Oracolo MAME + esportatore nei test</td>
+<td>i 15 candidati diventano misure; 5-8 giorni</td>
+<td>Arthur sulla corsa <code>lance_zombie</code></td>
+</tr>
+<tr>
+<td>B → A</td>
+<td>Controllo del contesto sulle decodifiche JSON, in particolare banco 2/4 degli stage 2-7</td>
+<td>chiude la classe di errori del §3.3; 2-3 giorni</td>
+<td>campi letti via puntatore, banco o slot</td>
+</tr>
+<tr>
+<td>B → A</td>
+<td>Schede regola + arbitro</td>
+<td>trova ciò che le suite verdi non vedono; mezza giornata per area</td>
+<td>stage 2</td>
+</tr>
+<tr>
+<td>B → A</td>
+<td>SKIP mai PASS</td>
+<td>suite oneste su copie pulite; poco</td>
+<td>un test con l'oracolo</td>
+</tr>
+<tr>
+<td>A → B</td>
+<td>InputMap, touch, impostazioni</td>
+<td>giocabile da iPad; 1-2 giorni</td>
+<td><code>_mask()</code> di <code>game.gd</code></td>
+</tr>
+<tr>
+<td>A → B</td>
+<td><code>rom_coverage</code></td>
+<td>le funzioni di B portano già gli indirizzi; 1 giorno</td>
+<td>puntarlo su <code>scripts/sim</code></td>
+</tr>
+<tr>
+<td>A → B</td>
+<td>ADR + skill</td>
+<td>le decisioni sopravvivono all'agente; 1 giorno</td>
+<td>un ADR «la simulazione porta byte ROM»</td>
+</tr>
+<tr>
+<td>A → B</td>
+<td>Controlli di rilascio</td>
+<td>pesare <code>audio.bin</code>; 1 giorno</td>
+<td>controllo di peso in <code>deploy_claude_web.sh</code></td>
+</tr>
+<tr>
+<td>A → B</td>
+<td>Presentatore a nodi + temi</td>
+<td>un prodotto; 12-18 giorni</td>
+<td>Arthur e gli zombie</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="8-raccomandazione-e-decisioni-tue">8. Raccomandazione e decisioni tue</h2>
+<p><strong>Raccomandazione:</strong> tieni <strong>A come prodotto</strong> e usa <strong>B come oracolo per lo stage 1 di A</strong>, non il contrario. Non conviene
+estendere B a sette stage se l'obiettivo è il gioco (costo: una campagna nuova di schede, corse MAME e gestori per ogni stage,
+mentre A li ha già a dati). Conviene estendere B solo se vuoi un riferimento di fedeltà per altri stage, uno alla volta.</p>
+<p>Decisioni che sono tue (la 2, la 3 e la 4 toccano il gameplay di <code>game/</code>, che è congelato; la 1 e la 5 no):
+1. <strong>Arte originale con i bit invertiti</strong> (§3.2 #1): è solo strumenti; correggo io se me lo dici, o lo fai tu.
+2. <strong>Pausa che non ferma tempo e grado</strong> (#3) e <strong>continue che azzera arma, difficoltà e checkpoint</strong> (#4): sono gameplay; servono
+   la tua approvazione scritta.
+3. <strong>Velocità dello zombie e grado</strong> (#5), <strong>Arremer</strong> (#6) e le altre: decidi se vale l'oracolo (5-8 giorni) per misurarle prima
+   di toccare.
+4. <strong>Gli stage 2-7 di A</strong> usano le tabelle di pausa del banco 4: è il rischio non misurato più grande; richiede una corsa MAME
+   per stage.
+5. <strong>Custodia:</strong> il ramo di B è stato pushato su origin (2026-10-28); resta da fare una copia privata delle catture (5,1 GB) e dei pacchetti; fare una copia
+   di <code>local/</code> e dei temi di A. E la scelta sul materiale ROM nei <code>.pck</code> pubblici (§5).
+6. <strong>Da fare io, quando vuoi:</strong> il difetto di <code>_draw</code> di B (una riga: uscire se manca il presentatore), la pubblicazione della testa
+   (<code>492fc1d</code>), il controllo del peso di <code>audio.bin</code> nella pubblicazione, l'uscita ≠ 0 del lanciatore di B quando salta una suite
+   (oggi esce 0 sullo SKIP), la correzione di una riga in README (già fatta).</p>
+<h2 id="9-correzioni-a-documenti-miei-precedenti">9. Correzioni a documenti miei precedenti</h2>
+<ul>
+<li><code>README.md</code>: la dimensione delle catture era «circa 2,5 GB» (e 2,1 GB prima): sono <strong>5,1 GB</strong>. Corretto.</li>
+<li><code>DELTA.md</code> §B: i conteggi per classe non si riproducono (203/60/30/37 contro 197/54/25/32); e l'affermazione «il tuo porting non
+  si chiede quale banco è mappato» è sbagliata per lo stage 1 (vedi §3.2). Aggiunta una nota in fondo a <code>DELTA.md</code>.</li>
+<li>Questo documento <strong>non</strong> riscrive i verdetti di DELTA sui 56 candidati: li ha rifatti per 15; gli altri restano quelli di allora.</li>
+</ul>
+<footer>Generato da <code>claude/tools/build_compare_page.py</code> da <code>claude/DUE_DILIGENCE.md</code>, revisione 78da0f5, 2026-10-28.</footer>
+</main>
+</body>
+</html>

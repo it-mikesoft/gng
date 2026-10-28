@@ -1,0 +1,80 @@
+{
+  "generated_at": "2026-10-26T13:52:37Z",
+  "versions": {
+    "v0": {
+      "label": "old",
+      "pck_bytes": 6529216,
+      "pck_sha256": "7b52fb2c1d4d57e8a553b157316c98a6c6875ed90a47145d18f0bea947ef9285",
+      "model": "Codex (GPT)",
+      "model_inferred": false,
+      "summary": "Il gioco di partenza",
+      "date_label": "settembre 2025 (circa)"
+    },
+    "v1": {
+      "label": "gameplay-corrected",
+      "pck_bytes": 6756928,
+      "pck_sha256": "5b4e5c741e778f7485de747e89c7f5678a760431faf816e3d6341a3a0f7710de",
+      "model": "Claude Fable 5",
+      "model_inferred": true,
+      "built_at": "2026-07-25",
+      "notes": "prima correzione del gameplay",
+      "summary": "Prima correzione del gameplay"
+    },
+    "v2": {
+      "label": "uhd-ai-backgrounds",
+      "pck_bytes": 76709216,
+      "pck_sha256": "0def18bc9906b757c235b4855b4cd18663d20c5676c2c5cdf53a51b632b0b176",
+      "model": "Claude Fable 5",
+      "model_inferred": true,
+      "built_at": "2026-07-25",
+      "notes": "sfondi UHD generati con OpenAI image generation",
+      "summary": "Sfondi dipinti in alta definizione"
+    },
+    "v49": {
+      "label": "v1.1.0",
+      "version": "1.1.0",
+      "revision": "e16d15f",
+      "built_at": "2026-10-23T20:46:25Z",
+      "model": "Claude Sonnet 5.5",
+      "summary": "Citylife: i due droni (cavaliere volante e pipistrello piccolo) ridisegnati cella per cella dal loro master, sempre lo stesso drone, senza aloni",
+      "pck_bytes": 82350704,
+      "pck_sha256": "5c47afa939bed9c6a870734d3c9bc4255cc8a683a3f5d6cf3a513ebdcfab752e"
+    },
+    "v50": {
+      "label": "v1.1.0",
+      "version": "1.1.0",
+      "revision": "a29a1d6",
+      "built_at": "2026-10-25T23:31:09Z",
+      "model": "Claude Sonnet 5.5",
+      "summary": "Plastilina e Horror: nemici e boss ridisegnati dal loro master, proiettili di pasta, gufo senza sacco",
+      "pck_bytes": 82350656,
+      "pck_sha256": "d4c64c17ac030cfa01ea95ab638b33bf723afc6f449a589b7e98574434e39524"
+    },
+    "v51": {
+      "label": "v1.1.0",
+      "version": "1.1.0",
+      "revision": "ea27d06",
+      "built_at": "2026-10-26T13:52:37Z",
+      "model": "Claude Sonnet 5.5",
+      "summary": "Arthur accovacciato schiva la palla alta delle colonne di fuoco della caverna e la palla bassa si salta; stesse righe ROM per il fuoco del Dragon e il sasso dell'Orco",
+      "pck_bytes": 82350752,
+      "pck_sha256": "eb268414dd098d2f51fd0dea9a0ca490e5eb4b534a1c1ad378b9a445f1d660c8"
+    }
+  },
+  "latest": "v51",
+  "last_slot": 51,
+  "experiments": {
+    "claude": {
+      "label": "claude v3",
+      "summary": "claude v3 con il suono (fase 7): lo stage 1 intero giocabile, ora con la musica e gli effetti dalle registrazioni di MAME della scheda audio dell'arcade (un modello a tick decide quale suono parte e quale ne copre un altro; M spegne e riaccende). Il suono arriva circa 0,1-0,2 s dopo l'immagine e sotto i 60 fotogrammi al secondo disegnati va lento; nessuno l'ha ancora ascoltato. Senza modalit\u00e0 attrazione; lo stage 2 non c'\u00e8.",
+      "summary_en": "claude v3 with sound (phase 7): all of stage 1 playable, now with music and effects from MAME's recordings of the arcade's sound board (a tick model decides which sound starts and which one covers another; M mutes). The sound comes about 0.1-0.2 s after the picture and runs slow below 60 drawn frames a second; nobody has listened to it yet. No attract mode; stage 2 is not built.",
+      "model": "Claude Sonnet 5.5",
+      "revision": "a2bd95a",
+      "built_at": "2026-10-28T19:05:03Z",
+      "pck_bytes": 1187952,
+      "pck_sha256": "09c8bde4be94a3fc1cd8d3ca399e0d5480b9c878acaf6f7f8c2cbd8ef84577f4",
+      "audio_bytes": 24851097,
+      "audio_sha256": "f4df57962d4d73794e701ba06395e456d1cc5019af7a3c1b67de9b44e174b798"
+    }
+  }
+}

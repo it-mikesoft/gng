@@ -1,0 +1,11 @@
+{
+  "name": "gng",
+  "version": "1.1.0",
+  "revision": "a29a1d6",
+  "branch": "restoration-pass-2026-10",
+  "built_at": "2026-10-25T23:31:09Z",
+  "source": "https://github.com/mmondora/gng",
+  "developer": "MikeSoft (mmondora@mondora.com)",
+  "license": "proprietary",
+  "stack": "godot 4.3 + gdscript"
+}
